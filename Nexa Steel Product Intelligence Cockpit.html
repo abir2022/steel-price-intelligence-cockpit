@@ -1,0 +1,5284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexa Steel — Product Intelligence Cockpit (3-Year)</title>
+<style>
+  :root{
+    --bg:#0d1220; --panel:#151c2e; --panel2:#1b2440; --line:#26314f;
+    --tx:#e6ecff; --muted:#8fa0c4; --dim:#5d6c8f;
+    --accent:#2f7dff; --accent2:#22c3aa; --gold:#f0b90b; --red:#ff5c7a;
+    --green:#2fd181; --orange:#ff8a3d; --violet:#a78bfa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:linear-gradient(180deg,#0d1220,#101830 60%);color:var(--tx);font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;line-height:1.5;padding:0 0 60px;font-size:16px}
+  header{padding:20px 26px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap}
+  header h1{font-size:22px;font-weight:700;letter-spacing:.2px}
+  header h1 span{color:var(--gold)}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px}
+  .badge{background:rgba(240,185,11,.12);border:1px solid rgba(240,185,11,.45);color:var(--gold);padding:5px 11px;border-radius:999px;font-size:12px;letter-spacing:.4px;white-space:nowrap}
+  nav{position:sticky;top:0;z-index:100;display:flex;gap:2px;padding:10px 26px 0;flex-wrap:wrap;background:rgba(13,18,32,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+  nav button{background:transparent;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:10px 13px;cursor:pointer;font-size:14px}
+  nav button:hover{color:var(--tx)}
+  nav button.on{color:var(--gold);border-bottom-color:var(--gold)}
+  main{padding:18px 26px 40px;max-width:1300px;margin:0 auto}
+  section{display:none}
+  section.on{display:block}
+  .grid{display:grid;gap:12px}
+  .g5{grid-template-columns:repeat(5,1fr)} .g4{grid-template-columns:repeat(4,1fr)} .g2{grid-template-columns:1fr}
+  @media(max-width:1250px){.g5{grid-template-columns:repeat(2,1fr)}.g4{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .kpi .lab{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.7px}
+  .kpi .val{font-size:24px;font-weight:600;margin-top:5px}
+  .kpi .note{color:var(--muted);font-size:12px;margin-top:4px}
+  .kpi .note.up{color:var(--green)} .kpi .note.down{color:var(--red)}
+  .card h3{margin:0 0 3px;font-size:15px;font-weight:600}
+  .card .hint{color:var(--muted);font-size:13px;margin-bottom:10px}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  th{position:sticky;top:0;background:var(--panel2);color:var(--muted);font-weight:600;text-align:center;padding:8px 8px;border-bottom:1px solid var(--line);font-size:12.5px;text-transform:uppercase;letter-spacing:.45px;white-space:nowrap;z-index:2}
+  th[data-s]{cursor:pointer}
+  th[data-s]:hover{color:var(--tx)}
+  th.sorted{color:var(--gold)}
+  td:first-child,th:first-child{text-align:left}
+  td{padding:7px 8px;border-bottom:1px solid rgba(34,48,63,.6);text-align:center;white-space:nowrap}
+  tr:hover td{background:rgba(47,125,255,.06)}
+  tr.drill{cursor:pointer}
+  .tag{display:inline-block;padding:2px 7px;border-radius:6px;font-size:11.5px;border:1px solid}
+  .t-neg{color:var(--green);border-color:rgba(47,209,129,.35);background:rgba(47,209,129,.08)}
+  .t-pos{color:var(--red);border-color:rgba(255,92,122,.35);background:rgba(255,92,122,.08)}
+  .t-mut{color:var(--muted);border-color:var(--line);background:rgba(139,155,176,.07)}
+  .t-warn{color:var(--gold);border-color:rgba(240,185,11,.35);background:rgba(240,185,11,.08)}
+  .pos{color:var(--green)} .neg{color:var(--red)}
+  .scroll{max-height:600px;overflow:auto;border-radius:10px;border:1px solid var(--line)}
+  .toolbar{display:flex;gap:9px;align-items:center;margin-bottom:9px;flex-wrap:wrap}
+  input[type=search],select{background:var(--panel2);border:1px solid var(--line);color:var(--tx);padding:7px 10px;border-radius:8px;font-size:14px;outline:none}
+  input[type=search]:focus,select:focus{border-color:var(--accent)}
+  input[type=search]{min-width:220px}
+  .note-box{background:rgba(47,125,255,.06);border:1px solid rgba(47,125,255,.25);border-radius:10px;padding:12px 14px;color:#c9d7ea;font-size:14px;margin:12px 0}
+  .note-box b{color:var(--tx)}
+  .warn{background:rgba(240,185,11,.06);border-color:rgba(240,185,11,.28)}
+  .insight{border-left:3px solid var(--gold);background:rgba(240,185,11,.05);border-radius:8px;padding:11px 14px;font-size:14px;color:#c9d7ea;margin:8px 0}
+  .insight b{color:var(--tx)}
+  .legend{display:flex;gap:14px;color:var(--muted);font-size:14px;margin-top:8px;flex-wrap:wrap}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px}
+  .small{font-size:12.5px;color:var(--muted)}
+  .chart{width:100%;overflow-x:auto}
+  .pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700}
+  .p-b500{background:rgba(240,185,11,.16);color:var(--gold)}
+  .p-b420{background:rgba(47,125,255,.16);color:#7fb0ff}
+  .guide{background:rgba(240,185,11,.07);border:1px solid rgba(240,185,11,.24);border-left:3px solid var(--gold);border-radius:10px;padding:12px 15px;color:#d9c9a8;font-size:14px;margin:0 0 12px;line-height:1.55}
+  .guide b{color:var(--gold)}
+  .guide .gl{color:var(--gold);font-size:12px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin:8px 0 2px;display:block}
+  .guide .gl:first-child{margin-top:0}
+  .guide p{margin:2px 0 0}
+  .syn{margin-top:10px;padding:11px 14px;background:rgba(47,125,255,.045);border:1px solid rgba(47,125,255,.16);border-left:3px solid var(--accent);border-radius:9px;color:#c9d7ea;font-size:13.5px;line-height:1.55}
+  .syn b{color:var(--gold)}
+  .syn ul{margin:6px 0 0;padding-left:20px}
+  .syn li{margin:3px 0}
+  .syn li::marker{color:var(--gold)}
+  .lw{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:14px 18px;background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:12px}
+  .lw .ind{font-size:15px;font-weight:800;letter-spacing:1.5px;padding:7px 16px;border-radius:999px;text-transform:uppercase}
+  .lw .ind.loss{color:#fff;background:var(--red)}
+  .lw .ind.win{color:#fff;background:var(--green)}
+  .lw .m{display:flex;flex-direction:column;gap:3px}
+  .lw .m .l{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .lw .m .v{font-size:18px;font-weight:700}
+  .tip{position:fixed;background:#1a2536;border:1px solid #33405a;border-radius:8px;padding:8px 12px;font-size:13px;color:var(--tx);pointer-events:none;z-index:200;box-shadow:0 4px 14px rgba(0,0,0,.5);max-width:340px;line-height:1.5;white-space:pre-line;display:none}
+  svg [onmousemove]{cursor:crosshair}
+  .dda-title{font-size:17px;font-weight:700;color:var(--tx);margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+  .dda-title .num{background:rgba(240,185,11,.15);color:var(--gold);border:1px solid rgba(240,185,11,.4);border-radius:6px;padding:1px 9px;font-size:12px;letter-spacing:.3px}
+  .dda-expl{background:rgba(47,125,255,.05);border:1px solid rgba(47,125,255,.2);border-left:3px solid var(--accent);border-radius:10px;padding:13px 15px;color:#c9d7ea;font-size:14px;line-height:1.6;margin-bottom:12px}
+  .dda-expl b{color:var(--tx)}
+  .dda-expl ul{margin:6px 0 0;padding-left:18px}
+  .dda-expl li{margin:3px 0}
+  table .pri-hi{color:var(--red);font-weight:700}
+  table .pri-md{color:var(--gold);font-weight:600}
+  table .pri-lo{color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Nexa Steel — <span>Product Intelligence Cockpit</span></h1>
+    <div class="sub">Price · margin · SKU momentum · competitors · market share · dealers · areas · growth · elasticity · declared price — follow the Nexa Essentials cockpit pattern</div>
+  </div>
+  <div class="badge">FY2023-24 → FY2026-27 (July–June) &amp; Oct · per-ton clean window Jan'25–Nov'26</div>
+</header>
+
+<nav id="nav">
+  <button class="on" data-t="ov">Overview</button>
+  <button data-t="price">Price</button>
+  <button data-t="margin">GP / NP / Net</button>
+  <button data-t="sku">All SKUs</button>
+  <button data-t="mom">SKU month-on-month</button>
+  <button data-t="chg">Price change tracker</button>
+  <button data-t="pg">Declared price grid</button>
+  <button data-t="el">Elasticity</button>
+  <button data-t="comp">Competitor</button>
+  <button data-t="ms">Market Share</button>
+  <button data-t="dealer">Dealer</button>
+  <button data-t="area">Area</button>
+  <button data-t="growth">Growth</button>
+  <button data-t="promo">Promotion</button>
+  <button data-t="dda">Direction · Decision · Action</button>
+  <button data-t="w2p">Where to Play · Whom to Play · How to Win</button>
+   <!-- <button data-t="mt">Method &amp; coverage</button>  -->
+</nav>
+
+<main>
+
+<!-- ============ OVERVIEW ============ -->
+<section id="ov" class="on">
+  <div class="guide"><span class="gl">What this answers</span><p>Your whole business in one screen — revenue, price direction and the biggest SKU moves across the clean window.</p><span class="gl">How to read it</span><p>KPIs summarise the window. Portfolio chart = monthly revenue (bars) + active SKUs (line). Breadth = share of SKUs raising (green) vs cutting (red) price vs the prior month.</p></div>
+  <div class="grid g5" id="ovKpis"></div>
+  <div class="lw" id="lossWinCard"></div>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card">
+      <h3>Monthly revenue (৳ Cr) and active SKUs (Dec'22 → Nov'26)</h3>
+      <div class="hint">Bars: net revenue. Line: SKUs with sales that month. Nov'26 partial — excluded from "current" stats.</div>
+      <div class="chart" id="cPort"></div>
+    </div>
+    <div class="card">
+      <h3>Price direction breadth (Jan'25 → Nov'26)</h3>
+      <div class="hint">Share of rebar SKUs that raised vs cut realised price vs previous month (clean window). Green = raises, red = cuts.</div>
+      <div class="chart" id="cBreadth"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>What the full history says</h3>
+    <div id="insights"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Top 8 SKUs — price journey (Jan'25 → Nov'26)</h3>
+    <div class="hint">First vs last realised net price per MT in the clean window. Click a row to open its month-on-month view.</div>
+    <div class="scroll" id="cJourney"></div>
+  </div>
+</section>
+
+<!-- ============ PRICE ============ -->
+<section id="price">
+  <div class="guide"><span class="gl">What this answers</span><p>Realised net, gross and MRP price per MT — by SKU and over time.</p><span class="gl">How to read it</span><p><b>Net</b> = realised after discount; <b>Gross</b> ≈ net (Nexa applies ~0% trade discount); <b>MRP</b> = announced list price. Use the selectors to isolate one SKU or overlay all.</p></div>
+  <div class="card">
+    <h3>Realised net price per metric ton — FY2025-26</h3>
+    <div class="hint">FY2025-26 is the first year with clean, consistent per-ton data across all rebar SKUs.</div>
+    <div id="priceTable"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Net vs Gross vs MRP — overall monthly compare (Jan'25 → Nov'26)</h3>
+    <div class="hint">Blended average across all rebar SKUs, Tk/MT. <b>Net</b> (solid blue) and <b>Gross</b> (dashed gold) are nearly identical — Nexa applies ~0% trade discount, so the dashed Gross rides on top of the solid Net line. <b>MRP</b> (teal) is the announced list price. Hover any point for the exact value.</div>
+    <div class="chart" id="cThreePrice"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Monthly net price — by SKU (select) (Jan'25 → Nov'26)</h3>
+    <div class="hint">Realised net price per MT over time. "Overall" = blended average across all products; "All SKUs" overlays every grade.</div>
+    <select id="netPriceSel"></select>
+    <div class="chart" id="netPriceChart" style="margin-top:8px"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Monthly gross price — by SKU (select) (Jan'25 → Nov'26)</h3>
+    <div class="hint">Gross (list) price per MT. Gross ≈ net — Nexa applies ~0% trade discount, so the spread is negligible (only Jan'25 shows a small gap).</div>
+    <select id="grossPriceSel"></select>
+    <div class="chart" id="grossPriceChart" style="margin-top:8px"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Monthly MRP price — by SKU (select) (Jan'25 → Nov'26)</h3>
+    <div class="hint">MRP / announced list price (<code>list-price field</code>) per MT — the base price before freight &amp; discount add-ons.</div>
+    <select id="mrpPriceSel"></select>
+    <div class="chart" id="mrpPriceChart" style="margin-top:8px"></div>
+  </div>
+</section>
+
+<!-- ============ GP / NP / NET ============ -->
+<section id="margin">
+  <div class="guide"><span class="gl">What this answers</span><p>How price stacks against cost — gross profit, and net after commission &amp; freight.</p><span class="gl">How to read it</span><p>Waterfall = price → cost → GP → NP. Scrap chart = net price vs raw-material cost (monthly scrap purchase, a proxy — no production cost is posted). GP% uses a point-in-time average item cost, so treat it as a snapshot.</p></div>
+  <div class="note-box"><b>Basis:</b> <b>Net price</b> = realised after discounts. <b>GP%</b> = net price vs item average cost (<code>item avg-cost field</code>). <b>NP%</b> = GP% minus dealer commission &amp; freight — directional; exact net margin needs the finance P&amp;L.</div>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Price waterfall — FY2025-26 (avg across B500 &amp; B420, Tk/MT)</h3>
+      <div class="chart" id="waterfall"></div>
+    </div>
+    <div class="card">
+      <h3>Net price vs scrap (raw material) cost per MT — FY2025-26</h3>
+      <div class="hint">B500 DWR 10 mm realised price vs monthly scrap purchase cost (raw-material component only — excludes melting/rolling conversion).</div>
+      <div class="chart" id="gpnpTrend"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Margin by product (FY2025-26)</h3>
+    <div id="marginTable"></div>
+  </div>
+</section>
+
+<!-- ============ ALL SKUs ============ -->
+<section id="sku">
+  <div class="guide"><span class="gl">What this answers</span><p>Every rebar SKU — revenue, volume, price, month-on-month and elasticity in one sortable table.</p><span class="gl">How to read it</span><p>Click any header to sort; use search and the grade/elasticity/move filters; click a row to drill into its month-on-month view.</p></div>
+  <div class="grid g5" id="skuKpis" style="margin-bottom:12px"></div>
+  <div class="card">
+    <h3>Every SKU — price &amp; volume summary <span class="small" id="skuCount"></span></h3>
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="Search SKU / grade…">
+      <select id="fGrade"><option value="all">All grades</option><option>B500</option><option>B420</option></select>
+      <select id="fEl"><option value="all">Any elasticity</option><option value="neg">Negative β (normal)</option><option value="pos">Positive β (anomalous)</option><option value="na">Not measurable</option></select>
+      <select id="fMove"><option value="all">Any move</option><option value="r3">Raised in last 3 mo</option><option value="big">Window move |Δ| &gt; 10%</option></select>
+    </div>
+    <div class="scroll" id="tSku"></div>
+    <div class="hint" style="margin-top:8px">Click any row to drill into its month-on-month view. Sort by clicking headers.</div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Monthly net revenue — by SKU (select) (Jan'23 → Nov'26)</h3>
+    <select id="skuSel"></select>
+    <div class="chart" id="skuRevMonthly" style="margin-top:8px"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Top SKU revenue — FY2025-26 (ranked)</h3>
+    <div class="hint">Net sales by SKU, Tk Cr.</div>
+    <div class="chart" id="skuRank"></div>
+  </div>
+</section>
+
+<!-- ============ SKU MONTH-ON-MONTH ============ -->
+<section id="mom">
+  <div class="guide"><span class="gl">What this answers</span><p>One SKU's volume, revenue and price month by month.</p><span class="gl">How to read it</span><p>Pick a SKU and range. The chart overlays volume and realised price; the table adds MoM price &amp; volume changes and realised-vs-MRP. Click a row in "All SKUs" to jump here.</p></div>
+  <div class="card">
+    <h3 id="momTitle">Month-on-month series (Jan'25 → Nov'26)</h3>
+    <div class="hint">Volume derived as net revenue ÷ realised net price (MT). Compare to the previous month with sales. Click rows in "All SKUs" to switch.</div>
+    <div class="toolbar">
+      <select id="momPick"></select>
+      <select id="momRange"><option value="all">Full window (Jan'25–Nov'26)</option><option value="12">Last 12 months</option><option value="6">Last 6 months</option></select>
+    </div>
+    <div class="chart" id="momChart"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Month table</h3>
+    <div class="scroll" id="tMom"></div>
+  </div>
+</section>
+
+<!-- ============ PRICE CHANGE TRACKER ============ -->
+<section id="chg">
+  <div class="guide"><span class="gl">What this answers</span><p>Where prices actually moved — the biggest realised jumps and every declared (MRP + Trade mill-rate) change.</p><span class="gl">How to read it</span><p>Realised moves are ≥2% month-on-month with a unit-typo guard. Declared changes show when the announced MRP or the daily Trade (mill) rate was revised.</p></div>
+  <div class="card">
+    <h3>Largest realised price moves <span class="small" id="chc"></span></h3>
+    <div class="hint">Month-on-month realised-price moves ≥ 2% within a SKU (ratio guard 0.5–2 excludes unit/ERP typos). Same-month volume change shown. Click a row to drill.</div>
+    <div class="toolbar"><input type="search" id="chq" placeholder="Filter SKU / month…"></div>
+    <div class="scroll" id="tJump"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Declared (MRP) price changes</h3>
+    <div class="hint">Moves of ≥ 0.5% in the announced MRP list price — the "declared" price book effect.</div>
+    <div class="scroll" id="tDecl"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Declared Trade (mill-rate) changes</h3>
+    <div class="hint">Every revision of the daily Trade/mill rate (<code>the declared-price setup</code>, the Trade channel). The mill rate moves frequently — these are the declared sell-rate changes.</div>
+    <div class="toolbar"><input type="search" id="tq" placeholder="Filter month…"></div>
+    <div class="scroll" id="tTradeDecl"></div>
+  </div>
+</section>
+
+<!-- ============ DECLARED PRICE GRID ============ -->
+<section id="pg">
+  <div class="guide"><span class="gl">What this answers</span><p>What Nexa has declared for each SKU — the daily Trade (mill) rate and MRP — and how far the realised price sits from it.</p><span class="gl">How to read it</span><p><b>Trade rate</b> = the daily-updated mill rate (<code>the declared-price setup</code>, the Trade channel). <b>MRP</b> = announced list price. <b>Gap</b> = realised vs Trade. Nexa Steel has no separate distributor (DP) tier — rebar trades at a single mill rate, so MRP sits almost on top of Trade.</p><span class="gl">Source</span><p><code>the declared-price setup</code> (the Trade channel, since Sep-2024) + <code>list-price field</code> (MRP).</p></div>
+  <div class="grid g4" id="pgKpis" style="margin-bottom:12px"></div>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Declared Trade (mill) rate vs realised net price (Sep'24 → Nov'26)</h3>
+      <div class="hint">Monthly: the mill rate (month-end) against the overall realised net price per MT. Rebar trades at the mill rate, so the two track closely.</div>
+      <div class="chart" id="cTradeTrend"></div>
+    </div>
+    <div class="card">
+      <h3>Realised price vs declared Trade (per SKU) (latest)</h3>
+      <div class="hint">How far each SKU's latest realised price sits above (teal) or below (red) the current Trade rate, in %.</div>
+      <div class="chart" id="cGap"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Declared price grid — every rebar SKU</h3>
+    <div class="hint">Current Trade rate, latest MRP and latest realised price, with realised-vs-Trade and MRP-vs-Trade gaps.</div>
+    <div class="scroll" id="tGrid"></div>
+  </div>
+</section>
+
+<!-- ============ ELASTICITY ============ -->
+<section id="el">
+  <div class="guide"><span class="gl">What this answers</span><p>How strongly volume responds to price, SKU by SKU.</p><span class="gl">What β means</span><p>β is own-price elasticity — the % change in volume for a 1% change in price. <b>β = −2</b>: a 10% price rise is linked to a ~20% volume drop. <b>β = −0.5</b>: a 10% rise only trims volume ~5%. <b>β &gt; 0</b>: price and volume move together (scrap-cost pass-through, not demand).</p><span class="gl">How to read it</span><p>Hover any bar, point or table cell for the full interpretation. Volume is derived (revenue ÷ price), so β is directional, not a causal demand curve. <b>R²</b> shows how reliable the fit is; <b>Pairs</b> is the number of month-over-month observations used.</p></div>
+  <div class="grid g4" id="elKpis" style="margin-bottom:12px"></div>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Elasticity by SKU (β = Δln volume ÷ Δln price) (Jan'25 → Nov'26)</h3>
+      <div class="hint">First-difference estimator over consecutive clean months. Teal = β&lt;0 (normal: price up → volume down). Red = β&gt;0 (anomalous).</div>
+      <div class="chart" id="cEl"></div>
+    </div>
+    <div class="card">
+      <h3>Price vs volume, within SKU (Jan'25 → Nov'26)</h3>
+      <div class="hint">Each point = one SKU-month; ln(price) and ln(volume) demeaned to the SKU's own mean. Colour = sign of that SKU's β.</div>
+      <div class="chart" id="cScatter"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Elasticity table</h3>
+    <div id="tEl"></div>
+    <div class="note-box warn" style="margin-top:10px"><b>Read with care.</b> Volume is derived (revenue ÷ price), so β is directional only — demand here is project-driven and stock-outs, discounts and freight distort the estimate. Treat β as a signal to investigate, not a causal demand curve.</div>
+  </div>
+</section>
+
+<!-- ============ COMPETITOR ============ -->
+<section id="comp">
+  <div class="guide"><span class="gl">What this answers</span><p>Nexa's mill rate against its peers.</p><span class="gl">How to read it</span><p>The survey covers 25 mills but only <b>May'24–Jan'25</b> — a full 3-year competitor series is not in the ERP. Ranking shows each mill's average mill-gate rate over that window.</p></div>
+  <div class="note-box"><b>Coverage:</b> market price survey (<code>the competitor price survey</code>) holds 25 competitors, <b>May 2024 → Jan 2025</b>. A full 3-year competitor series is not in the ERP.</div>
+  <div class="card">
+    <h3>Mill-rate trend — Nexa vs top competitors (May'24 → Jan'25)</h3>
+    <div class="hint">Monthly average mill-gate price, Tk/MT.</div>
+    <div class="chart" id="compTrend"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Competitor ranking (avg mill rate, May'24–Jan'25)</h3>
+    <div id="compTable"></div>
+  </div>
+</section>
+
+<!-- ============ MARKET SHARE ============ -->
+<section id="ms">
+  <div class="guide"><span class="gl">What this answers</span><p>Nexa's share of the Bangladesh steel market.</p><span class="gl">How to read it</span><p>Nexa is 7th of the named mills at ~2.6% and the <b>fastest-growing (+21.7% YoY)</b>. Share comes from an external sheet; monthly figures cover Dec'25–Sep'26.</p></div>
+  <div class="grid g4" id="msKpis" style="margin-bottom:12px"></div>
+  <div class="card">
+    <h3>Steel market share — FY2023-24 vs FY2024-25 (%)</h3>
+    <div class="hint">Nexa Steel highlighted — 7th of the named mills, fastest-growing (+21.7% YoY).</div>
+    <div class="chart" id="msLadder"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Nexa Steel share — monthly (Dec'25 → Sep'26)</h3>
+    <div class="hint">Share hovered 2.7–3.5%, peaking 3.49% (Mar'26).</div>
+    <div class="chart" id="msTrend"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Steel market share — full table</h3>
+    <div id="msTable"></div>
+  </div>
+</section>
+
+<!-- ============ DEALER ============ -->
+<section id="dealer">
+  <div class="guide"><span class="gl">What this answers</span><p>Dealer commission and how it tracks sales.</p><span class="gl">How to read it</span><p>Commission (left axis) vs net sales (right axis). The by-type chart shows the incentive mix (Monthly, General, Performance…).</p></div>
+  <div class="grid g4" id="commKpis" style="margin-bottom:12px"></div>
+  <div class="card">
+    <h3>Dealer commission vs sales — monthly (FY2023-24 → FY2026-27)</h3>
+    <div class="hint">Dealer commission (left axis) against net sales (right axis) — compare the two trends.</div>
+    <div class="chart" id="commMonthly"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Commission by incentive type (total) (FY2023-24 → FY2026-27)</h3>
+    <div class="chart" id="commType"></div>
+  </div>
+</section>
+
+<!-- ============ AREA ============ -->
+<section id="area">
+  <div class="guide"><span class="gl">What this answers</span><p>Where volume and value land by delivery zone — <b>cumulative across FY2022-23 → FY2026-27 (up to Oct '26)</b>.</p><span class="gl">How to read it</span><p>Top zones ranked by cumulative value; the table adds volume (MT) for each zone.</p></div>
+  <div class="card">
+    <h3>Top 12 delivery zones — cumulative value (FY2022-23 → FY2026-27, up to Oct '26)</h3>
+    <div class="chart" id="zoneBar"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>All top zones — value &amp; volume (FY2022-23 → FY2026-27, up to Oct '26)</h3>
+    <div id="zoneTable"></div>
+  </div>
+</section>
+
+<!-- ============ GROWTH ============ -->
+<section id="growth">
+  <div class="guide"><span class="gl">What this answers</span><p>Net revenue by fiscal year (July–June), with delivery counts as an activity proxy.</p><span class="gl">How to read it</span><p>FY2025-26 vs FY2024-25 growth plus the 2-yr CAGR. FY2026-27 is a partial year (5 months, July–November).</p></div>
+  <div class="grid g5" id="growthKpis" style="margin-bottom:12px"></div>
+  <div class="card">
+    <h3>Revenue &amp; volume by year (FY2023-24 → FY2026-27)</h3>
+    <div class="chart" id="revYear"></div>
+  </div>
+</section>
+
+<!-- ============ PROMOTION ============ -->
+<section id="promo">
+  <div class="guide"><span class="gl">What this is</span><p>Nexa Steel's marketing spend, activities and budgets versus competitors — and where we are under-investing.</p><span class="gl">How to read it</span><p>Three lenses: <b>our budget &amp; spend</b> (brand marketing), <b>competitor activity</b> (digital presence &amp; trade incentives), and the <b>gap</b> (where we under-invest and what to fix).</p></div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Digital presence — Facebook followers (latest)</h3>
+      <div class="hint">Nexa Steel trails every major mill on owned digital reach.</div>
+      <div class="chart" id="promoSocial"></div>
+    </div>
+    <div class="card">
+      <h3>Trade incentives — Tk per MT (May'26 survey)</h3>
+      <div class="hint">Omega leads on trade spend; Nexa is mid-pack but priced lowest.</div>
+      <div class="chart" id="promoIncentive"></div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Offline campaigns — ours vs competitors (Jan–Apr'26)</h3>
+      <div class="hint">Nexa's "12% stronger" USP is the sharpest, most product-led message; competitors lean on leadership claims.</div>
+      <div class="scroll" id="promoCampaign"></div>
+    </div>
+    <div class="card">
+      <h3>Digital spend &amp; reach (Dec'25–Feb'26)</h3>
+      <div class="hint">Vega outspends us 5× and reaches 5× more people online.</div>
+      <div class="chart" id="promoDigital"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3>Total marketing spend vs revenue contribution (Dec'25–Feb'26)</h3>
+    <div class="hint">Nexa spends the most as a % of revenue (1.58%) but the least in absolute terms — a scale gap, not an effort gap.</div>
+    <div class="scroll" id="promoSpendTable"></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Competitor activity &amp; spend — the comparison</h3>
+      <div class="scroll" id="promoCompTable"></div>
+    </div>
+    <div class="card">
+      <h3>Where we under-invest &amp; what to fix</h3>
+      <div class="scroll" id="promoGap"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DIRECTION · DECISION · ACTION ============ -->
+<section id="dda">
+  <div class="guide"><span class="gl">What this is</span><p>A management read-out — where Nexa Steel is heading, what to decide, and what to do — each grounded in the data shown across the other tabs.</p><span class="gl">How to read it</span><p>Three blocks: <b>Direction</b> (the trend), <b>Decision</b> (the choices) and <b>Action</b> (the next moves). Each pairs a plain-language explanation with a <b>proof table</b> and a <b>chart</b>.</p></div>
+
+  <!-- 1 · DIRECTION -->
+  <div class="dda-title"><span class="num">1</span>Direction — where the business is heading</div>
+  <div class="dda-expl" id="ddaDirExpl"></div>
+  <div class="grid g2">
+    <div class="card"><h3>Chart — revenue trajectory (Dec'22 → Nov'26)</h3><div class="hint">Monthly net revenue, Dec'22 → Nov'26.</div><div class="chart" id="ddaDirChart"></div></div>
+    <div class="card"><h3>Proof</h3><div class="scroll" id="ddaDirTable"></div></div>
+  </div>
+
+  <!-- 2 · DECISION -->
+  <div class="dda-title"><span class="num">2</span>Decision — what to decide</div>
+  <div class="dda-expl" id="ddaDecExpl"></div>
+  <div class="grid g2">
+    <div class="card"><h3>Chart — where the money &amp; margin are (FY2025-26)</h3><div class="hint">Top SKUs by FY25-26 net revenue; colour = gross-margin tier (blue &lt;6%, teal 6–9%, gold ≥10%).</div><div class="chart" id="ddaDecChart"></div></div>
+    <div class="card"><h3>Proof</h3><div class="scroll" id="ddaDecTable"></div></div>
+  </div>
+
+  <!-- 3 · ACTION -->
+  <div class="dda-title"><span class="num">3</span>Action — what to do now</div>
+  <div class="dda-expl" id="ddaActExpl"></div>
+  <div class="grid g2">
+    <div class="card"><h3>Chart — share momentum &amp; target (Dec'25 → Sep'26)</h3><div class="hint">Monthly steel-market share with a 3.5% target line (the Mar'26 peak).</div><div class="chart" id="ddaActChart"></div></div>
+    <div class="card"><h3>Proof</h3><div class="scroll" id="ddaActTable"></div></div>
+  </div>
+
+  <!-- 4 · LOSS-MAKING SKUs -->
+  <div class="dda-title"><span class="num">4</span>Loss-making / at-risk SKUs</div>
+  <div class="dda-expl" id="ddaLossExpl"></div>
+  <div class="grid g2">
+    <div class="card"><h3>Chart — net margin by SKU (FY2025-26)</h3><div class="hint">Estimated net-profit % per SKU (gross margin − ~2.1% commission &amp; freight). Red = below 4% (at-risk), green = healthy.</div><div class="chart" id="ddaLossChart"></div></div>
+    <div class="card"><h3>Proof</h3><div class="scroll" id="ddaLossTable"></div></div>
+  </div>
+
+  <!-- 5 · LOSS RECOVERY PLAN -->
+  <div class="dda-title"><span class="num">5</span>Loss Recovery Plan — FY26-27 (Q1 &amp; October)</div>
+  <div class="dda-expl" id="ddaRecoveryExpl"></div>
+  <div class="grid g2">
+    <div class="card"><h3>Chart — Jul–Oct revenue, FY25-26 vs FY26-27</h3><div class="hint">Grouped bars by month. July &amp; October are the loss months; August &amp; September over-recover.</div><div class="chart" id="ddaRecoveryChart"></div></div>
+    <div class="card"><h3>Proof — the loss</h3><div class="scroll" id="ddaRecoveryTable"></div></div>
+  </div>
+</section>
+
+<!-- ============ WHERE TO PLAY · WHOM TO PLAY · HOW TO WIN ============ -->
+<section id="w2p">
+  <div class="guide"><span class="gl">What this is</span><p>The zone map of where Nexa Steel lost steel market share from Q4 FY2025-26 (April-June) to Q1 FY 2026-27 (Jul-Sep) &amp; Oct — in <b>position</b> (share), <b>volume</b> (MT) and <b>revenue</b> (Cr) — and the playbook to win it back.</p><span class="gl">How to read it</span><p>Three blocks: <b>Where to play</b> (the divisions we lost), <b>Whom to play</b> (who took the share), and <b>How to win</b> (the SMART plan).</p></div>
+
+  <!-- 1 · WHERE TO PLAY -->
+  <div class="dda-title"><span class="num">1</span>Where to play — divisions we lost</div>
+  <div class="dda-expl" id="w2pWhereExpl"></div>
+  <div class="grid g2">
+    <div class="card"><h3>Chart — revenue loss by division</h3><div class="hint">Timeline: Q4 FY2025-26 (April-June) → Q1 FY 2026-27 (Jul-Sep) &amp; Oct. Dhaka alone is ~92% of the revenue loss; Chattogram is a distant second.</div><div class="chart" id="w2pRegionChart"></div></div>
+    <div class="card"><h3>Division wise Market share Loss</h3><div class="scroll" id="w2pRegionTable"></div></div>
+  </div>
+
+  <!-- 2 · WHOM TO PLAY -->
+  <div class="dda-title"><span class="num">2</span>Whom to play — who took the share</div>
+  <div class="dda-expl" id="w2pWhomExpl"></div>
+  <!-- 3 · HOW TO WIN -->
+  <div class="dda-title"><span class="num">3</span>How to win — the playbook</div>
+  <div class="dda-expl" id="w2pHowExpl"></div>
+</section>
+
+<!-- ============ METHOD & COVERAGE ============ -->
+<section id="mt">
+  <div class="guide"><span class="gl">What this answers</span><p>Where every number comes from and its limits.</p><span class="gl">How to read it</span><p>Check the coverage table before drawing conclusions — some series are partial (competitor survey) or derived (volume, elasticity, GP cost proxy).</p></div>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Sources</h3>
+      <table>
+        <thead><tr><th>Data</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td>Revenue, SKU &amp; price series</td><td>the ERP <code>sales</code> orders (BU 220 · Nexa Steel)</td></tr>
+          <tr><td>Avg item cost (GP basis)</td><td><code>item avg-cost field</code></td></tr>
+          <tr><td>MRP / list price</td><td><code>list-price field</code></td></tr>
+          <tr><td>Declared Trade (mill) rate</td><td><code>the declared-price setup</code> · the Trade channel</td></tr>
+          <tr><td>Dealer commission</td><td><code>marketing</code> incentive postings</td></tr>
+          <tr><td>Competitor mill rates</td><td><code>the competitor price survey</code></td></tr>
+          <tr><td>Steel market share</td><td>An external market-share sheet</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Method</h3>
+      <ul style="margin-left:16px;font-size:14px;color:#c9d7ea">
+        <li><b>Net price</b> = realised invoice value ÷ MT, after discounts.</li>
+        <li><b>GP%</b> = (net price − avg cost) ÷ net price. <b>Est. NP%</b> = GP% − ~2.1% (commission ~1.3% + freight ~0.8%).</li>
+        <li><b>Volume (MT) in MoM &amp; elasticity views</b> = monthly net revenue ÷ realised net price — derived, directional only.</li>
+        <li><b>Elasticity β</b> = OLS slope of Δln(volume) on Δln(price) between consecutive months; needs ≥ 8 pairs and |β| ≤ 8.</li>
+        <li><b>Move detection</b> = |Δprice| ≥ 2% MoM with ratio guard 0.5–2 (excludes unit breaks).</li>
+        <li>Mixed-unit rebar quantity entries from 2023–24 are excluded from per-ton series (revenue values remain valid).</li>
+        <li><b>Last-month convention:</b> the running month (Nov'26) is partial and excluded from "current" statistics.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Coverage</h3>
+    <table>
+      <thead><tr><th>Series</th><th>Window</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Monthly total revenue</td><td>Dec'22 → Nov'26</td><td><span class="tag t-neg">Full</span></td></tr>
+        <tr><td>Monthly revenue by SKU</td><td>Jan'23 → Nov'26</td><td><span class="tag t-neg">Full</span></td></tr>
+        <tr><td>Per-ton price (net/gross/MRP)</td><td>Jan'25 → Nov'26</td><td><span class="tag t-neg">Full (clean)</span></td></tr>
+        <tr><td>Declared Trade (mill) rate</td><td>Sep'24 → Nov'26</td><td><span class="tag t-neg">Full (daily)</span></td></tr>
+        <tr><td>Per-ton price</td><td>FY2023-24 / FY2024-25</td><td><span class="tag t-warn">Mixed units — excluded</span></td></tr>
+        <tr><td>Competitor mill rates</td><td>May'24 → Jan'25</td><td><span class="tag t-warn">Partial (survey)</span></td></tr>
+        <tr><td>Steel market share</td><td>FY23-24, FY24-25, monthly Dec'25→Sep'26</td><td><span class="tag t-warn">External sheet</span></td></tr>
+        <tr><td>Dealer commission</td><td>Jan'23 → Sep'26</td><td><span class="tag t-neg">Full</span></td></tr>
+        <tr><td>Elasticity (β)</td><td>Jan'25 → Nov'26</td><td><span class="tag t-warn">Derived volume</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<div id="tip" class="tip"></div>
+
+<script>
+/* ============================================================
+   EMBEDDED DATA  (live from the ERP, BU 220 = Nexa Steel)
+   ============================================================ */
+var D = {
+  "monthly": [
+    [
+      2022,
+      12,
+      400485
+    ],
+    [
+      2023,
+      1,
+      721232117
+    ],
+    [
+      2023,
+      2,
+      586481968
+    ],
+    [
+      2023,
+      3,
+      653590843
+    ],
+    [
+      2023,
+      4,
+      501058329
+    ],
+    [
+      2023,
+      5,
+      893103883
+    ],
+    [
+      2023,
+      6,
+      1018400226
+    ],
+    [
+      2023,
+      7,
+      467784040
+    ],
+    [
+      2023,
+      8,
+      531946918
+    ],
+    [
+      2023,
+      9,
+      417646834
+    ],
+    [
+      2023,
+      10,
+      1046965781
+    ],
+    [
+      2023,
+      11,
+      715247854
+    ],
+    [
+      2023,
+      12,
+      620349873
+    ],
+    [
+      2024,
+      1,
+      1140475958
+    ],
+    [
+      2024,
+      2,
+      903546862
+    ],
+    [
+      2024,
+      3,
+      923409908
+    ],
+    [
+      2024,
+      4,
+      543566995
+    ],
+    [
+      2024,
+      5,
+      1094570795
+    ],
+    [
+      2024,
+      6,
+      603619885
+    ],
+    [
+      2024,
+      7,
+      878170550
+    ],
+    [
+      2024,
+      8,
+      536894496
+    ],
+    [
+      2024,
+      9,
+      596509212
+    ],
+    [
+      2024,
+      10,
+      748752287
+    ],
+    [
+      2024,
+      11,
+      696966556
+    ],
+    [
+      2024,
+      12,
+      1134951908
+    ],
+    [
+      2025,
+      1,
+      1579140185
+    ],
+    [
+      2025,
+      2,
+      1526239642
+    ],
+    [
+      2025,
+      3,
+      1499473643
+    ],
+    [
+      2025,
+      4,
+      1563709607
+    ],
+    [
+      2025,
+      5,
+      1391311122
+    ],
+    [
+      2025,
+      6,
+      871187934
+    ],
+    [
+      2025,
+      7,
+      869846659
+    ],
+    [
+      2025,
+      8,
+      887466205
+    ],
+    [
+      2025,
+      9,
+      1263250059
+    ],
+    [
+      2025,
+      10,
+      1046336501
+    ],
+    [
+      2025,
+      11,
+      1436101848
+    ],
+    [
+      2025,
+      12,
+      1103191184
+    ],
+    [
+      2026,
+      1,
+      1821805747
+    ],
+    [
+      2026,
+      2,
+      1540995727
+    ],
+    [
+      2026,
+      3,
+      1839666162
+    ],
+    [
+      2026,
+      4,
+      1451477848
+    ],
+    [
+      2026,
+      5,
+      1156909215
+    ],
+    [
+      2026,
+      6,
+      1692465048
+    ],
+    [
+      2026,
+      7,
+      802924747
+    ],
+    [
+      2026,
+      8,
+      1248092401
+    ],
+    [
+      2026,
+      9,
+      1827705339
+    ],
+    [
+      2026,
+      10,
+      827545897
+    ],
+    [
+      2026,
+      11,
+      230237054
+    ]
+  ],
+  "yearlyRev": {
+    "2022": 400485,
+    "2023": 7465909225,
+    "2024": 10684451885,
+    "2025": 12478368497,
+    "2026": 14778313196
+  },
+  "yearlyDel": {
+    "2022": [
+      2,
+      258161
+    ],
+    "2023": [
+      7015,
+      6415629331
+    ],
+    "2024": [
+      9950,
+      10511510129
+    ],
+    "2025": [
+      13403,
+      12591890813
+    ],
+    "2026": [
+      15945,
+      14447475186
+    ]
+  },
+  "cat": {
+    "MS Rod": {
+      "2023": 7813964291,
+      "2024": 9714655293,
+      "2025": 12761590284,
+      "2026": 13920242815
+    },
+    "Wastage & By-Products": {
+      "2023": 43508072,
+      "2024": 57496853,
+      "2025": 366681213,
+      "2026": 443907966
+    }
+  },
+  "skuMonthly": {
+    "B500 DWR 10 mm": [
+      235505142,
+      210209562,
+      270747481,
+      191884605,
+      307277637,
+      380251334,
+      179279350,
+      220066669,
+      147452034,
+      381639331,
+      198255631,
+      281562198,
+      342843227,
+      263293677,
+      284091256,
+      223742784,
+      425700904,
+      196075690,
+      231926805,
+      170234440,
+      281998937,
+      240326221,
+      198942750,
+      388107086,
+      445213531,
+      352023152,
+      428485711,
+      487609094,
+      490789661,
+      315145121,
+      407455300,
+      273299218,
+      390249404,
+      350108192,
+      442966926,
+      380383608,
+      574194941,
+      508611339,
+      466088991,
+      550125284,
+      346717707,
+      438447383,
+      327518728,
+      375172558,
+      523274618,
+      289287558,
+      42933210
+    ],
+    "B500 DWR 16 mm": [
+      181708029,
+      154840466,
+      165551037,
+      111885654,
+      190839880,
+      208111968,
+      103750295,
+      115660827,
+      97245800,
+      215405035,
+      152828233,
+      140375501,
+      255100234,
+      223710308,
+      226876244,
+      139184893,
+      244436973,
+      113211896,
+      117079481,
+      92305147,
+      134092397,
+      169655070,
+      160377493,
+      312854387,
+      319394023,
+      277449376,
+      308473534,
+      284198881,
+      238026712,
+      160901560,
+      184106706,
+      170566274,
+      236774904,
+      197291586,
+      282148377,
+      279800654,
+      388199592,
+      335345469,
+      338196790,
+      275357559,
+      212332991,
+      385890522,
+      169130273,
+      230630495,
+      377444493,
+      174124247,
+      35704710
+    ],
+    "B500 DWR 12 mm": [
+      103721348,
+      102512350,
+      103915079,
+      62713932,
+      109416006,
+      118273851,
+      71335208,
+      57858248,
+      46078435,
+      144798707,
+      99934085,
+      80874011,
+      110908006,
+      113528159,
+      159365349,
+      78701019,
+      170987363,
+      94574993,
+      90299091,
+      80079362,
+      71390269,
+      92744955,
+      86983083,
+      175156683,
+      270408726,
+      235348956,
+      187401074,
+      203595416,
+      198276513,
+      147326111,
+      117105257,
+      104834840,
+      161873943,
+      163516526,
+      195252175,
+      173296060,
+      273136812,
+      225172125,
+      198603313,
+      242177430,
+      164659303,
+      211127981,
+      135190329,
+      155647537,
+      189081487,
+      110961503,
+      23392192
+    ],
+    "B500 DWR 20 mm": [
+      51236666,
+      61304790,
+      61099757,
+      53075322,
+      101088772,
+      68448396,
+      43143239,
+      70851374,
+      58878038,
+      85298647,
+      69526375,
+      80425031,
+      97338768,
+      108630326,
+      86289440,
+      54618256,
+      100905998,
+      37010056,
+      88523565,
+      67479088,
+      83386433,
+      87812431,
+      67580381,
+      130899359,
+      131138410,
+      163624327,
+      135712495,
+      132782202,
+      109410895,
+      80136747,
+      93005281,
+      99008616,
+      154100087,
+      132664708,
+      130779488,
+      106848528,
+      168922015,
+      218890265,
+      175331955,
+      234428585,
+      102128263,
+      188928861,
+      135642599,
+      170434072,
+      216141596,
+      132389416,
+      23995020
+    ],
+    "B500 DWR 8 mm": [
+      65112034,
+      58745144,
+      63990781,
+      77820509,
+      114012546,
+      111877105,
+      51046391,
+      48265312,
+      26067601,
+      110492000,
+      55222782,
+      83805641,
+      122823808,
+      108373063,
+      100923938,
+      49505702,
+      103424870,
+      57735269,
+      55428431,
+      34950541,
+      43151070,
+      68761321,
+      40340154,
+      131215540,
+      101072659,
+      85035155,
+      106050785,
+      126662334,
+      63663366,
+      59162913,
+      60911438,
+      55218931,
+      83472725,
+      46351374,
+      74636339,
+      77253429,
+      129871502,
+      86357801,
+      85864756,
+      63297832,
+      60168973,
+      87467487,
+      35893329,
+      63798849,
+      96797355,
+      41309823,
+      7954872
+    ],
+    "B500 DWR 25 mm": [
+      14925118,
+      13452014,
+      12756071,
+      4581023,
+      21439024,
+      15892718,
+      11020647,
+      10254756,
+      15549252,
+      32967790,
+      38758758,
+      12143765,
+      16119612,
+      26058974,
+      32258249,
+      7624616,
+      22127323,
+      10856231,
+      21262275,
+      17397877,
+      14437548,
+      26884311,
+      18609172,
+      25846578,
+      95223963,
+      96243436,
+      63270189,
+      124477218,
+      35479132,
+      40095123,
+      36844736,
+      26902819,
+      44657008,
+      56063103,
+      44185302,
+      57729968,
+      35017907,
+      63926875,
+      53862288,
+      94332417,
+      38064381,
+      66463961,
+      25177168,
+      47329426,
+      86619499,
+      36015082,
+      10218612
+    ],
+    "B500 DWR 32 mm": [
+      0,
+      0,
+      0,
+      400235,
+      197139,
+      0,
+      0,
+      0,
+      0,
+      2448675,
+      295542,
+      0,
+      0,
+      560071,
+      681522,
+      221228,
+      1541204,
+      0,
+      0,
+      0,
+      0,
+      0,
+      505986,
+      33064,
+      53298073,
+      29953759,
+      48990639,
+      92458460,
+      290076,
+      42119711,
+      1921728,
+      22084375,
+      8131114,
+      27067471,
+      32395463,
+      22951350,
+      31238105,
+      28264466,
+      2599009,
+      35034002,
+      2236894,
+      12320634,
+      843648,
+      7905142,
+      20050057,
+      0,
+      940878
+    ],
+    "B420 DWR 10 mm": [
+      237674,
+      3943295,
+      2886677,
+      2366830,
+      20126640,
+      1601840,
+      5941230,
+      15508320,
+      7008027,
+      8619008,
+      5769716,
+      12290743,
+      19369065,
+      25451110,
+      12987584,
+      9708413,
+      22422147,
+      7918215,
+      26156359,
+      11828245,
+      17844166,
+      17449886,
+      8102302,
+      19051685,
+      48752492,
+      47822189,
+      21680608,
+      37332448,
+      25953472,
+      18373106,
+      22037137,
+      16491270,
+      21555911,
+      24796822,
+      17540774,
+      20106236,
+      33755876,
+      34052700,
+      23447439,
+      22091110,
+      10206060,
+      15135527,
+      8398609,
+      12280926,
+      19847506,
+      16342527,
+      0
+    ],
+    "B420 DWR 12 mm": [
+      8741988,
+      168211,
+      693058,
+      726308,
+      18202830,
+      1565990,
+      10805115,
+      8853263,
+      8240370,
+      15101020,
+      7249767,
+      8787100,
+      12847532,
+      18074152,
+      15121596,
+      5193100,
+      22141388,
+      6251635,
+      32011305,
+      10392813,
+      22752375,
+      8137721,
+      19450712,
+      15553055,
+      40103179,
+      27648565,
+      28748600,
+      27069868,
+      18555551,
+      6363554,
+      11208003,
+      18309002,
+      9681929,
+      10610664,
+      11546737,
+      18180533,
+      20145169,
+      10992832,
+      20984218,
+      14142051,
+      1815131,
+      16119848,
+      8407432,
+      5715774,
+      16156497,
+      6459275,
+      0
+    ],
+    "B420 DWR 16 mm": [
+      0,
+      416176,
+      1257649,
+      399016,
+      7344535,
+      2174747,
+      5391613,
+      6564997,
+      9769679,
+      1604899,
+      2349704,
+      6448936,
+      5704475,
+      39127786,
+      3302116,
+      4316427,
+      11457861,
+      4574186,
+      17655078,
+      2817022,
+      5442280,
+      6352296,
+      10282679,
+      4803632,
+      17111355,
+      12556409,
+      11168902,
+      20285252,
+      24270094,
+      12947406,
+      4711622,
+      10252210,
+      3152986,
+      6400097,
+      17486539,
+      11019310,
+      19769426,
+      13016452,
+      6593248,
+      23735682,
+      4238758,
+      59187778,
+      3151612,
+      3680804,
+      6518139,
+      2294578,
+      0
+    ],
+    "B420 DWR 20 mm": [
+      0,
+      5741891,
+      1807498,
+      9754970,
+      16318449,
+      1981021,
+      3550453,
+      2885952,
+      5034750,
+      5282890,
+      7000735,
+      8115625,
+      24951844,
+      12757750,
+      8304991,
+      6970450,
+      12324609,
+      6116880,
+      10954870,
+      6396673,
+      3508979,
+      4964558,
+      4385814,
+      8798115,
+      10609067,
+      18738964,
+      13226117,
+      12155345,
+      12065091,
+      2731147,
+      9623956,
+      8455722,
+      5103404,
+      10064468,
+      10207779,
+      17381026,
+      6783579,
+      13962031,
+      6427337,
+      15008312,
+      217053,
+      19287004,
+      4137871,
+      5553894,
+      11811751,
+      6109536,
+      0
+    ]
+  },
+  "priceNet": {
+    "B500 DWR 10 mm": [
+      72895,
+      70751,
+      87219,
+      96723,
+      99395,
+      70855,
+      76504,
+      78960,
+      74984,
+      86178,
+      80717,
+      81497,
+      83126,
+      95256,
+      86274,
+      92320,
+      93749,
+      87148,
+      92321,
+      91099,
+      91922,
+      97208,
+      74970
+    ],
+    "B500 DWR 16 mm": [
+      84605,
+      73657,
+      96441,
+      79860,
+      79895,
+      84817,
+      80356,
+      70365,
+      73811,
+      78813,
+      74432,
+      66356,
+      70653,
+      74977,
+      76132,
+      101913,
+      87845,
+      88385,
+      80734,
+      89361,
+      93081,
+      92492,
+      76828
+    ],
+    "B500 DWR 12 mm": [
+      90731,
+      98139,
+      86338,
+      76967,
+      69594,
+      81524,
+      73695,
+      87893,
+      84693,
+      78138,
+      66838,
+      71973,
+      78801,
+      80386,
+      94580,
+      77903,
+      105076,
+      92803,
+      73355,
+      93476,
+      83981,
+      84752,
+      101929
+    ],
+    "B500 DWR 20 mm": [
+      96818,
+      78004,
+      83664,
+      94370,
+      92495,
+      79634,
+      99555,
+      89915,
+      93452,
+      90916,
+      83355,
+      70925,
+      67319,
+      83547,
+      87041,
+      97037,
+      93996,
+      78134,
+      105773,
+      80827,
+      80383,
+      99904,
+      95131
+    ],
+    "B500 DWR 8 mm": [
+      85321,
+      84577,
+      89307,
+      70153,
+      92974,
+      89966,
+      73079,
+      77453,
+      96268,
+      91016,
+      91312,
+      76426,
+      88910,
+      94842,
+      90930,
+      88840,
+      105616,
+      96064,
+      104642,
+      80522,
+      84079,
+      77686,
+      84483
+    ],
+    "B500 DWR 25 mm": [
+      96089,
+      89302,
+      82450,
+      78789,
+      82749,
+      75265,
+      86474,
+      86278,
+      94426,
+      85614,
+      71981,
+      92015,
+      64726,
+      86512,
+      73968,
+      75189,
+      79007,
+      98845,
+      99166,
+      91590,
+      84525,
+      83520,
+      104237
+    ],
+    "B500 DWR 32 mm": [
+      74623,
+      70674,
+      98155,
+      80879,
+      89068,
+      96364,
+      76665,
+      82690,
+      66446,
+      72779,
+      85308,
+      80290,
+      73310,
+      71749,
+      80175,
+      82600,
+      108395,
+      94275,
+      93020,
+      97413,
+      99416,
+      null,
+      102235
+    ],
+    "B420 DWR 10 mm": [
+      74160,
+      98018,
+      95705,
+      69929,
+      73357,
+      75052,
+      75028,
+      70603,
+      83613,
+      79955,
+      86048,
+      67311,
+      66606,
+      95431,
+      83856,
+      82673,
+      97129,
+      80274,
+      97185,
+      85978,
+      95172,
+      95537,
+      null
+    ],
+    "B420 DWR 12 mm": [
+      116110,
+      70257,
+      86592,
+      84970,
+      83006,
+      89444,
+      70469,
+      73378,
+      73805,
+      67238,
+      76382,
+      77647,
+      70400,
+      67228,
+      94411,
+      77391,
+      76565,
+      104339,
+      96140,
+      84903,
+      74460,
+      80827,
+      null
+    ],
+    "B420 DWR 16 mm": [
+      101627,
+      72244,
+      94126,
+      80688,
+      96267,
+      84598,
+      77309,
+      79322,
+      72874,
+      73811,
+      93020,
+      64378,
+      91648,
+      80547,
+      74055,
+      76714,
+      107706,
+      84972,
+      93965,
+      96853,
+      85958,
+      80397,
+      null
+    ],
+    "B420 DWR 20 mm": [
+      76903,
+      91640,
+      75076,
+      97152,
+      71847,
+      89339,
+      83708,
+      95344,
+      67369,
+      73170,
+      65499,
+      89922,
+      85963,
+      68096,
+      97356,
+      94341,
+      86757,
+      79107,
+      75953,
+      87119,
+      79913,
+      93401,
+      null
+    ]
+  },
+  "priceGross": {
+    "B500 DWR 10 mm": [
+      88741,
+      70751,
+      87219,
+      96723,
+      99395,
+      70855,
+      76504,
+      78960,
+      74984,
+      86178,
+      80717,
+      81497,
+      83126,
+      95256,
+      86274,
+      92320,
+      93749,
+      87148,
+      92321,
+      91099,
+      91922,
+      97208,
+      74970
+    ],
+    "B500 DWR 16 mm": [
+      84475,
+      73657,
+      96441,
+      79860,
+      79895,
+      84817,
+      80356,
+      70365,
+      73811,
+      78813,
+      74432,
+      66356,
+      70653,
+      74977,
+      76132,
+      101913,
+      87845,
+      88385,
+      80734,
+      89361,
+      93081,
+      92492,
+      76828
+    ],
+    "B500 DWR 12 mm": [
+      104868,
+      98139,
+      86338,
+      76967,
+      69594,
+      81524,
+      73695,
+      87893,
+      84693,
+      78138,
+      66838,
+      71973,
+      78801,
+      80386,
+      94580,
+      77903,
+      105076,
+      92803,
+      73355,
+      93476,
+      83981,
+      84752,
+      101929
+    ],
+    "B500 DWR 20 mm": [
+      102057,
+      78004,
+      83664,
+      94370,
+      92495,
+      79634,
+      99555,
+      89915,
+      93452,
+      90916,
+      83355,
+      70925,
+      67319,
+      83547,
+      87041,
+      97037,
+      93996,
+      78134,
+      105773,
+      80827,
+      80383,
+      99904,
+      95131
+    ],
+    "B500 DWR 8 mm": [
+      80441,
+      84577,
+      89307,
+      70153,
+      92974,
+      89966,
+      73079,
+      77453,
+      96268,
+      91016,
+      91312,
+      76426,
+      88910,
+      94842,
+      90930,
+      88840,
+      105616,
+      96064,
+      104642,
+      80522,
+      84079,
+      77686,
+      84483
+    ],
+    "B500 DWR 25 mm": [
+      83374,
+      89302,
+      82450,
+      78789,
+      82749,
+      75265,
+      86474,
+      86278,
+      94426,
+      85614,
+      71981,
+      92015,
+      64726,
+      86512,
+      73968,
+      75189,
+      79007,
+      98845,
+      99166,
+      91590,
+      84525,
+      83520,
+      104237
+    ],
+    "B500 DWR 32 mm": [
+      74623,
+      70674,
+      98155,
+      80879,
+      89068,
+      96364,
+      76665,
+      82690,
+      66446,
+      72779,
+      85308,
+      80290,
+      73310,
+      71749,
+      80175,
+      82600,
+      108395,
+      94275,
+      93020,
+      97413,
+      99416,
+      null,
+      102235
+    ],
+    "B420 DWR 10 mm": [
+      74160,
+      98018,
+      95705,
+      69929,
+      73357,
+      75052,
+      75028,
+      70603,
+      83613,
+      79955,
+      86048,
+      67311,
+      66606,
+      95431,
+      83856,
+      82673,
+      97129,
+      80274,
+      97185,
+      85978,
+      95172,
+      95537,
+      null
+    ],
+    "B420 DWR 12 mm": [
+      100454,
+      70257,
+      86592,
+      84970,
+      83006,
+      89444,
+      70469,
+      73378,
+      73805,
+      67238,
+      76382,
+      77647,
+      70400,
+      67228,
+      94411,
+      77391,
+      76565,
+      104339,
+      96140,
+      84903,
+      74460,
+      80827,
+      null
+    ],
+    "B420 DWR 16 mm": [
+      103907,
+      72244,
+      94126,
+      80688,
+      96267,
+      84598,
+      77309,
+      79322,
+      72874,
+      73811,
+      93020,
+      64378,
+      91648,
+      80547,
+      74055,
+      76714,
+      107706,
+      84972,
+      93965,
+      96853,
+      85958,
+      80397,
+      null
+    ],
+    "B420 DWR 20 mm": [
+      80547,
+      91640,
+      75076,
+      97152,
+      71847,
+      89339,
+      83708,
+      95344,
+      67369,
+      73170,
+      65499,
+      89922,
+      85963,
+      68096,
+      97356,
+      94341,
+      86757,
+      79107,
+      75953,
+      87119,
+      79913,
+      93401,
+      null
+    ]
+  },
+  "priceOverallNet": [
+    95853,
+    97335,
+    85967,
+    91326,
+    76879,
+    81612,
+    82821,
+    68924,
+    90398,
+    65959,
+    69997,
+    80656,
+    79697,
+    66823,
+    71683,
+    81675,
+    78418,
+    93590,
+    89989,
+    92329,
+    71377,
+    90765,
+    73897
+  ],
+  "priceOverallGross": [
+    80402,
+    97335,
+    85967,
+    91326,
+    76879,
+    81612,
+    82821,
+    68924,
+    90398,
+    65959,
+    69997,
+    80656,
+    79697,
+    66823,
+    71683,
+    81675,
+    78418,
+    93590,
+    89989,
+    92329,
+    71377,
+    90765,
+    73897
+  ],
+  "priceMRP": {
+    "B500 DWR 10 mm": [
+      97031,
+      97031,
+      78789,
+      85407,
+      94780,
+      93039,
+      99212,
+      89290,
+      70149,
+      84763,
+      89066,
+      76205,
+      72654,
+      77929,
+      86697,
+      88488,
+      98087,
+      82660,
+      102919,
+      93036,
+      96649,
+      99877,
+      83019
+    ],
+    "B500 DWR 16 mm": [
+      72005,
+      82688,
+      70343,
+      88505,
+      85134,
+      87063,
+      88428,
+      68659,
+      69101,
+      70373,
+      89039,
+      71755,
+      83724,
+      89826,
+      81724,
+      109002,
+      84955,
+      75815,
+      77899,
+      88755,
+      95570,
+      82916,
+      95846
+    ],
+    "B500 DWR 12 mm": [
+      94299,
+      90339,
+      87126,
+      88565,
+      97591,
+      75177,
+      71960,
+      80717,
+      77327,
+      76903,
+      70164,
+      88759,
+      86646,
+      73460,
+      83799,
+      88329,
+      79466,
+      82660,
+      89654,
+      93718,
+      87351,
+      79708,
+      76236
+    ],
+    "B500 DWR 20 mm": [
+      71639,
+      69775,
+      75845,
+      73062,
+      93279,
+      75670,
+      76449,
+      79469,
+      85829,
+      91590,
+      66356,
+      78538,
+      79366,
+      75537,
+      104040,
+      98676,
+      88469,
+      78579,
+      90986,
+      82781,
+      73077,
+      74057,
+      91331
+    ],
+    "B500 DWR 8 mm": [
+      86503,
+      79357,
+      95672,
+      91862,
+      72740,
+      98582,
+      96721,
+      71779,
+      88797,
+      78169,
+      88097,
+      78027,
+      88617,
+      80964,
+      85293,
+      107084,
+      109157,
+      80653,
+      80233,
+      92374,
+      75625,
+      84917,
+      96470
+    ],
+    "B500 DWR 25 mm": [
+      80082,
+      87086,
+      93330,
+      74520,
+      84727,
+      98004,
+      85003,
+      96663,
+      79630,
+      91486,
+      82720,
+      87459,
+      92409,
+      68746,
+      80603,
+      90939,
+      96912,
+      86172,
+      81800,
+      73824,
+      80420,
+      95895,
+      100861
+    ],
+    "B500 DWR 32 mm": [
+      83173,
+      71886,
+      85115,
+      90368,
+      89068,
+      94992,
+      76665,
+      72258,
+      67324,
+      72019,
+      85932,
+      87965,
+      81056,
+      89535,
+      89361,
+      109448,
+      108395,
+      106053,
+      93020,
+      97413,
+      87216,
+      null,
+      102235
+    ],
+    "B420 DWR 10 mm": [
+      71816,
+      98646,
+      73392,
+      70521,
+      73039,
+      69560,
+      80079,
+      91496,
+      82929,
+      77347,
+      74407,
+      65271,
+      71112,
+      72609,
+      78059,
+      83987,
+      95112,
+      82864,
+      87198,
+      81601,
+      101026,
+      89895,
+      null
+    ],
+    "B420 DWR 12 mm": [
+      89083,
+      78195,
+      94234,
+      92129,
+      93370,
+      92112,
+      73391,
+      87845,
+      87266,
+      67201,
+      83683,
+      66339,
+      67918,
+      91761,
+      84826,
+      94379,
+      86110,
+      78438,
+      74623,
+      83966,
+      101523,
+      87490,
+      null
+    ],
+    "B420 DWR 16 mm": [
+      88007,
+      74536,
+      80764,
+      82046,
+      85380,
+      71949,
+      80846,
+      74819,
+      94226,
+      66201,
+      78947,
+      84634,
+      65173,
+      74020,
+      76154,
+      105142,
+      89607,
+      106365,
+      100812,
+      79631,
+      76495,
+      78852,
+      null
+    ],
+    "B420 DWR 20 mm": [
+      72868,
+      69629,
+      86623,
+      91534,
+      79108,
+      93059,
+      76819,
+      73532,
+      86068,
+      90098,
+      81092,
+      86156,
+      73101,
+      68922,
+      76433,
+      101047,
+      86757,
+      77346,
+      86764,
+      99125,
+      82979,
+      80285,
+      null
+    ]
+  },
+  "priceOverallMRP": [
+    74721,
+    89410,
+    91037,
+    73704,
+    82028,
+    76087,
+    80668,
+    80547,
+    71238,
+    83819,
+    92912,
+    94757,
+    70332,
+    86024,
+    101451,
+    109920,
+    104922,
+    76359,
+    75348,
+    91146,
+    90192,
+    82716,
+    87292
+  ],
+  "sku": [
+    [
+      "Nexa Steel B500 DWR 10 mm",
+      "B500",
+      3042783772,
+      3031276310,
+      5044265584
+    ],
+    [
+      "Nexa Steel B500 DWR 16 mm",
+      "B500",
+      1868540651,
+      2041788215,
+      3321526434
+    ],
+    [
+      "Nexa Steel B500 DWR 12 mm",
+      "B500",
+      1257541507,
+      1277634593,
+      2312445786
+    ],
+    [
+      "Nexa Steel B500 DWR 20 mm",
+      "B500",
+      666555390,
+      909360542,
+      1377741188
+    ],
+    [
+      "Nexa Steel B500 DWR 8 mm",
+      "B500",
+      970041406,
+      908828209,
+      873153321
+    ],
+    [
+      "Nexa Steel B500 DWR 25 mm",
+      "B500",
+      175499909,
+      235278162,
+      704932729
+    ],
+    [
+      "Nexa Steel B500 DWR 32 mm",
+      "B500",
+      3706552,
+      3048154,
+      443485189
+    ],
+    [
+      "Nexa Steel B420 DWR 10 mm",
+      "B420",
+      98393390,
+      191681081,
+      306532077
+    ],
+    [
+      "Nexa Steel B420 DWR 12 mm",
+      "B420",
+      77452673,
+      189320555,
+      221348544
+    ],
+    [
+      "Nexa Steel B420 DWR 16 mm",
+      "B420",
+      50723796,
+      142314689,
+      123606527
+    ],
+    [
+      "Nexa Steel B420 DWR 20 mm",
+      "B420",
+      58527331,
+      139217578,
+      148799786
+    ],
+    [
+      "Nexa Steel B420 DWR 25 mm",
+      "B420",
+      31372230,
+      152947823,
+      89849336
+    ]
+  ],
+  "price25": [
+    [
+      "Nexa Steel B500 DWR 10 mm",
+      "B500",
+      97071,
+      73062
+    ],
+    [
+      "Nexa Steel B500 DWR 16 mm",
+      "B500",
+      82317,
+      89850
+    ],
+    [
+      "Nexa Steel B500 DWR 12 mm",
+      "B500",
+      75467,
+      89507
+    ],
+    [
+      "Nexa Steel B500 DWR 20 mm",
+      "B500",
+      73353,
+      79557
+    ],
+    [
+      "Nexa Steel B500 DWR 8 mm",
+      "B500",
+      83244,
+      76932
+    ],
+    [
+      "Nexa Steel B500 DWR 25 mm",
+      "B500",
+      73802,
+      83274
+    ],
+    [
+      "Nexa Steel B500 DWR 32 mm",
+      "B500",
+      94608,
+      79639
+    ],
+    [
+      "Nexa Steel B420 DWR 10 mm",
+      "B420",
+      75373,
+      66072
+    ],
+    [
+      "Nexa Steel B420 DWR 12 mm",
+      "B420",
+      76205,
+      78951
+    ],
+    [
+      "Nexa Steel B420 DWR 16 mm",
+      "B420",
+      74892,
+      63996
+    ],
+    [
+      "Nexa Steel B420 DWR 20 mm",
+      "B420",
+      87166,
+      70796
+    ],
+    [
+      "Nexa Steel B420 DWR 25 mm",
+      "B420",
+      95232,
+      79175
+    ]
+  ],
+  "priceMonths": [
+    "Jan25",
+    "Feb25",
+    "Mar25",
+    "Apr25",
+    "May25",
+    "Jun25",
+    "Jul25",
+    "Aug25",
+    "Sep25",
+    "Oct25",
+    "Nov25",
+    "Dec25",
+    "Jan26",
+    "Feb26",
+    "Mar26",
+    "Apr26",
+    "May26",
+    "Jun26",
+    "Jul26",
+    "Aug26",
+    "Sep26",
+    "Oct26",
+    "Nov26"
+  ],
+  "p10": [
+    92416,
+    85402,
+    92056,
+    96723,
+    69392,
+    70855,
+    76504,
+    92270,
+    71386,
+    86178,
+    80717,
+    73219,
+    67480,
+    97019,
+    84917,
+    92320,
+    93749,
+    87148,
+    92321,
+    96769,
+    84655,
+    84418,
+    74970
+  ],
+  "p16": [
+    75585,
+    93416,
+    96441,
+    79860,
+    79895,
+    77582,
+    80356,
+    93670,
+    95717,
+    78813,
+    74432,
+    66356,
+    70653,
+    74977,
+    76132,
+    105684,
+    84955,
+    100975,
+    81201,
+    89361,
+    81964,
+    84891,
+    76828
+  ],
+  "comm": [
+    [
+      2023,
+      1,
+      8560873
+    ],
+    [
+      2023,
+      7,
+      18865046
+    ],
+    [
+      2023,
+      8,
+      7147439
+    ],
+    [
+      2023,
+      9,
+      13390126
+    ],
+    [
+      2023,
+      10,
+      19523982
+    ],
+    [
+      2023,
+      11,
+      9547414
+    ],
+    [
+      2023,
+      12,
+      9166140
+    ],
+    [
+      2024,
+      1,
+      11850651
+    ],
+    [
+      2024,
+      2,
+      10128147
+    ],
+    [
+      2024,
+      3,
+      17354194
+    ],
+    [
+      2024,
+      4,
+      9439055
+    ],
+    [
+      2024,
+      5,
+      24222982
+    ],
+    [
+      2024,
+      6,
+      10762801
+    ],
+    [
+      2024,
+      7,
+      21334675
+    ],
+    [
+      2024,
+      8,
+      8801254
+    ],
+    [
+      2024,
+      9,
+      7368548
+    ],
+    [
+      2024,
+      10,
+      12581398
+    ],
+    [
+      2024,
+      11,
+      12041935
+    ],
+    [
+      2024,
+      12,
+      15839450
+    ],
+    [
+      2025,
+      1,
+      27825394
+    ],
+    [
+      2025,
+      2,
+      11534145
+    ],
+    [
+      2025,
+      3,
+      11841616
+    ],
+    [
+      2025,
+      4,
+      12625374
+    ],
+    [
+      2025,
+      5,
+      15547840
+    ],
+    [
+      2025,
+      6,
+      12387897
+    ],
+    [
+      2025,
+      7,
+      16254925
+    ],
+    [
+      2025,
+      8,
+      16532683
+    ],
+    [
+      2025,
+      9,
+      20389456
+    ],
+    [
+      2025,
+      10,
+      17782911
+    ],
+    [
+      2025,
+      11,
+      21283330
+    ],
+    [
+      2025,
+      12,
+      20576620
+    ],
+    [
+      2026,
+      1,
+      33771215
+    ],
+    [
+      2026,
+      2,
+      41328260
+    ],
+    [
+      2026,
+      3,
+      29989026
+    ],
+    [
+      2026,
+      4,
+      33957465
+    ],
+    [
+      2026,
+      5,
+      21143303
+    ],
+    [
+      2026,
+      6,
+      17052865
+    ],
+    [
+      2026,
+      7,
+      18350566
+    ],
+    [
+      2026,
+      8,
+      24246098
+    ],
+    [
+      2026,
+      9,
+      23702105
+    ]
+  ],
+  "commType": [
+    [
+      "Monthly",
+      489732965
+    ],
+    [
+      "General",
+      61133782
+    ],
+    [
+      "Performance",
+      49551802
+    ],
+    [
+      "MonthlyTarget",
+      46284935
+    ],
+    [
+      "DeliveryIncentive",
+      39232568
+    ],
+    [
+      "WithTarget",
+      17700999
+    ],
+    [
+      "Delivery",
+      14043049
+    ],
+    [
+      "SpecialIncentive",
+      5253641
+    ],
+    [
+      "top20customer",
+      4506568
+    ],
+    [
+      "QuarterlyTarget",
+      2800158
+    ],
+    [
+      "WithoutTarget",
+      1095159
+    ],
+    [
+      "PriceAdjustment",
+      429148
+    ]
+  ],
+  "zones": [
+    [
+      "Cumilla Adarsha Sadar",
+      2452430404,
+      26450
+    ],
+    [
+      "Noakhali Sadar",
+      1977192789,
+      22881
+    ],
+    [
+      "Mirpur",
+      1777190342,
+      17233
+    ],
+    [
+      "Gazipur Sador",
+      1220717424,
+      14775
+    ],
+    [
+      "Daudkandi",
+      1180122792,
+      16912
+    ],
+    [
+      "Narayangonj Sador",
+      1249740703,
+      13714
+    ],
+    [
+      "Poba (Rajshahi)",
+      1173730590,
+      10499
+    ],
+    [
+      "Sylhet Sadar",
+      944668355,
+      9650
+    ],
+    [
+      "Feni Sadar",
+      1100813121,
+      9068
+    ],
+    [
+      "Ashulia",
+      951400024,
+      10318
+    ],
+    [
+      "Uttara Poshim",
+      903948592,
+      8573
+    ],
+    [
+      "Demra",
+      742318396,
+      9030
+    ],
+    [
+      "Tongi",
+      617273747,
+      7357
+    ],
+    [
+      "Savar",
+      762659756,
+      6890
+    ],
+    [
+      "Keranigonj Model",
+      708577195,
+      8531
+    ],
+    [
+      "Rupgonj",
+      651419209,
+      7569
+    ],
+    [
+      "Khulna Sadar",
+      551155540,
+      7137
+    ],
+    [
+      "Lakshmipur Sadar",
+      715537745,
+      7437
+    ],
+    [
+      "Gojariya",
+      548047699,
+      8804
+    ],
+    [
+      "Mymensingh Sadar",
+      684376257,
+      7667
+    ],
+    [
+      "Mohammadpur",
+      646435760,
+      6927
+    ],
+    [
+      "Uttara Purba",
+      485460780,
+      6344
+    ],
+    [
+      "Narshingdi Sador",
+      419475968,
+      5658
+    ],
+    [
+      "Baridhara",
+      495719680,
+      5573
+    ],
+    [
+      "Vatara",
+      505795832,
+      6316
+    ]
+  ],
+  "comp": [
+    [
+      "Alpha Steels",
+      77184,
+      106635,
+      5589
+    ],
+    [
+      "Giga Metals",
+      99743,
+      96989,
+      6244
+    ],
+    [
+      "Vega",
+      101454,
+      110477,
+      3569
+    ],
+    [
+      "Kalna",
+      93493,
+      86555,
+      992
+    ],
+    [
+      "Omega Steels",
+      82863,
+      72118,
+      900
+    ],
+    [
+      "Rimon Steels",
+      88921,
+      75590,
+      878
+    ],
+    [
+      "Nexa Steel",
+      81056,
+      85304,
+      2549
+    ],
+    [
+      "Rima Steels",
+      98776,
+      95394,
+      0
+    ],
+    [
+      "Metro Steels",
+      88232,
+      87585,
+      813
+    ],
+    [
+      "Gold Steels",
+      70731,
+      81913,
+      884
+    ],
+    [
+      "Hexa Metals",
+      92535,
+      81200,
+      878
+    ],
+    [
+      "Sagarpal Auto",
+      97775,
+      78700,
+      119
+    ],
+    [
+      "Chandra Steels",
+      76434,
+      89403,
+      507
+    ],
+    [
+      "Suman Steels (SSM)",
+      89423,
+      76057,
+      689
+    ],
+    [
+      "Shapla Steels",
+      81815,
+      94060,
+      471
+    ],
+    [
+      "Kaptai Steels",
+      89302,
+      89302,
+      0
+    ],
+    [
+      "Alpine Steels",
+      73567,
+      73567,
+      0
+    ],
+    [
+      "Prime Steels",
+      93360,
+      85676,
+      0
+    ],
+    [
+      "Zahin Steels",
+      87788,
+      76216,
+      0
+    ],
+    [
+      "Bondor Steels",
+      91858,
+      69317,
+      0
+    ],
+    [
+      "Hive Steels",
+      73457,
+      80554,
+      0
+    ],
+    [
+      "Rani Metals",
+      84315,
+      78764,
+      0
+    ],
+    [
+      "Sristi Steels",
+      70067,
+      79588,
+      0
+    ],
+    [
+      "Ambit Steels",
+      78250,
+      77252,
+      0
+    ],
+    [
+      "Mohona Steels",
+      68251,
+      88867,
+      0
+    ]
+  ],
+  "compTrend": {
+    "Vega": [
+      113097,
+      113097,
+      113097,
+      113097,
+      94964,
+      83136,
+      102725,
+      83669,
+      101679
+    ],
+    "Alpha": [
+      99193,
+      113097,
+      113097,
+      113097,
+      89368,
+      95634,
+      90743,
+      84965,
+      105225
+    ],
+    "Giga": [
+      109320,
+      105395,
+      105395,
+      105395,
+      81830,
+      81003,
+      102725,
+      75531,
+      84972
+    ],
+    "Kalna": [
+      97157,
+      102214,
+      95594,
+      98831,
+      80589,
+      99917,
+      92870,
+      88915,
+      83889
+    ],
+    "Omega": [
+      98245,
+      80130,
+      81054,
+      104380,
+      87638,
+      84590,
+      85481,
+      83819,
+      78817
+    ],
+    "Rimon": [
+      82970,
+      105599,
+      74797,
+      85363,
+      85737,
+      83190,
+      80451,
+      68600,
+      90577
+    ],
+    "Nexa": [
+      91556,
+      83120,
+      83359,
+      77996,
+      99475,
+      79881,
+      79628,
+      92222,
+      76840
+    ]
+  },
+  "compMonths": [
+    "May24",
+    "Jun24",
+    "Jul24",
+    "Aug24",
+    "Sep24",
+    "Oct24",
+    "Nov24",
+    "Dec24",
+    "Jan25"
+  ],
+  "ms": [
+    [
+      "Vega",
+      23.81,
+      27.58,
+      1382926,
+      1373803
+    ],
+    [
+      "Alpha",
+      14.13,
+      17.57,
+      882653,
+      1083425
+    ],
+    [
+      "Giga",
+      10.19,
+      12.21,
+      618075,
+      597902
+    ],
+    [
+      "Kalna",
+      7.02,
+      6.6,
+      355682,
+      432321
+    ],
+    [
+      "Rani",
+      3.78,
+      3.7,
+      188446,
+      213945
+    ],
+    [
+      "Omega Steels",
+      3.27,
+      1.79,
+      158344,
+      103326
+    ],
+    [
+      "Nexa Steel",
+      2.06,
+      2.59,
+      103439,
+      131851
+    ],
+    [
+      "Others",
+      35.74,
+      27.96,
+      2245980,
+      1391268
+    ]
+  ],
+  "msMonths": [
+    "Dec25",
+    "Jan26",
+    "Feb26",
+    "Mar26",
+    "Apr26",
+    "May26",
+    "Jun26",
+    "Jul26",
+    "Aug26",
+    "Sep26"
+  ],
+  "msNexaShare": [
+    2.56,
+    2.83,
+    3.36,
+    3.49,
+    3.47,
+    2.72,
+    2.97,
+    2.89,
+    2.96,
+    2.92
+  ],
+  "msNexaSales": [
+    13378,
+    17886,
+    16100,
+    16236,
+    17508,
+    8774,
+    11716,
+    9389,
+    10331,
+    13591
+  ],
+  "tradeMonthly": [
+    72039,
+    89068,
+    84274,
+    84274,
+    96723,
+    96723,
+    70355,
+    78760,
+    78760,
+    76848,
+    84737,
+    84737,
+    95086,
+    70355,
+    109347,
+    102870,
+    86757,
+    94888,
+    101903,
+    85747,
+    75940,
+    78480,
+    78480
+  ],
+  "tradeChanges": [
+    [
+      "2024-09-11",
+      83853,
+      -0.6
+    ],
+    [
+      "2024-09-29",
+      72039,
+      -0.6
+    ],
+    [
+      "2024-10-06",
+      97413,
+      -0.6
+    ],
+    [
+      "2024-10-09",
+      98739,
+      -0.9
+    ],
+    [
+      "2024-10-14",
+      74506,
+      0.6
+    ],
+    [
+      "2024-10-23",
+      97413,
+      0.4
+    ],
+    [
+      "2024-11-03",
+      74506,
+      -0.4
+    ],
+    [
+      "2024-11-05",
+      70355,
+      -0.2
+    ],
+    [
+      "2024-11-06",
+      98739,
+      -0.4
+    ],
+    [
+      "2024-11-07",
+      89068,
+      -0.2
+    ],
+    [
+      "2024-11-10",
+      97982,
+      -1.2
+    ],
+    [
+      "2024-11-14",
+      81675,
+      -0.6
+    ],
+    [
+      "2024-11-19",
+      78760,
+      -0.6
+    ],
+    [
+      "2024-12-01",
+      95086,
+      -0.6
+    ],
+    [
+      "2024-12-05",
+      76848,
+      -1.2
+    ],
+    [
+      "2024-12-10",
+      69089,
+      -0.6
+    ],
+    [
+      "2024-12-15",
+      85500,
+      -0.6
+    ],
+    [
+      "2024-12-24",
+      69089,
+      0.6
+    ],
+    [
+      "2024-12-27",
+      79500,
+      1.2
+    ],
+    [
+      "2024-12-31",
+      95086,
+      0.6
+    ],
+    [
+      "2025-01-01",
+      81675,
+      1.2
+    ],
+    [
+      "2025-01-04",
+      70355,
+      2.4
+    ],
+    [
+      "2025-01-06",
+      83853,
+      1.8
+    ],
+    [
+      "2025-01-07",
+      78817,
+      0.6
+    ],
+    [
+      "2025-01-16",
+      72039,
+      -1.1
+    ],
+    [
+      "2025-01-23",
+      97413,
+      -0.6
+    ],
+    [
+      "2025-01-30",
+      72039,
+      0.6
+    ],
+    [
+      "2025-02-02",
+      97413,
+      -0.6
+    ],
+    [
+      "2025-02-04",
+      89068,
+      -1.2
+    ],
+    [
+      "2025-02-16",
+      70355,
+      0.6
+    ],
+    [
+      "2025-02-19",
+      89068,
+      -0.6
+    ],
+    [
+      "2025-03-02",
+      84274,
+      -0.6
+    ],
+    [
+      "2025-03-16",
+      89068,
+      0.6
+    ],
+    [
+      "2025-03-19",
+      84274,
+      -0.6
+    ],
+    [
+      "2025-04-20",
+      89068,
+      0.6
+    ],
+    [
+      "2025-04-24",
+      84274,
+      -0.6
+    ],
+    [
+      "2025-04-25",
+      89068,
+      0.6
+    ],
+    [
+      "2025-04-30",
+      84274,
+      -0.6
+    ],
+    [
+      "2025-05-01",
+      96723,
+      0.2
+    ],
+    [
+      "2025-05-04",
+      84274,
+      -0.2
+    ],
+    [
+      "2025-05-06",
+      88573,
+      1
+    ],
+    [
+      "2025-05-08",
+      80879,
+      -0.6
+    ],
+    [
+      "2025-05-11",
+      89068,
+      0.2
+    ],
+    [
+      "2025-05-15",
+      96723,
+      -0.4
+    ],
+    [
+      "2025-05-22",
+      84274,
+      -0.2
+    ],
+    [
+      "2025-05-26",
+      96723,
+      0.2
+    ],
+    [
+      "2025-07-01",
+      70355,
+      1
+    ],
+    [
+      "2025-07-15",
+      88573,
+      -0.2
+    ],
+    [
+      "2025-07-29",
+      70355,
+      0.2
+    ],
+    [
+      "2025-08-04",
+      89068,
+      -0.6
+    ],
+    [
+      "2025-08-06",
+      84274,
+      -0.6
+    ],
+    [
+      "2025-08-16",
+      81675,
+      -1.2
+    ],
+    [
+      "2025-08-27",
+      78760,
+      -0.6
+    ],
+    [
+      "2025-09-07",
+      95086,
+      -0.6
+    ],
+    [
+      "2025-09-09",
+      74557,
+      0.4
+    ],
+    [
+      "2025-09-11",
+      78760,
+      0.2
+    ],
+    [
+      "2025-09-21",
+      74557,
+      -0.2
+    ],
+    [
+      "2025-09-23",
+      95086,
+      -0.4
+    ],
+    [
+      "2025-09-27",
+      78760,
+      0.6
+    ],
+    [
+      "2025-10-09",
+      74063,
+      -0.4
+    ],
+    [
+      "2025-10-12",
+      95086,
+      -0.2
+    ],
+    [
+      "2025-10-14",
+      67649,
+      -0.4
+    ],
+    [
+      "2025-10-16",
+      79500,
+      -0.2
+    ],
+    [
+      "2025-10-19",
+      76848,
+      -0.6
+    ],
+    [
+      "2025-10-23",
+      75910,
+      0.4
+    ],
+    [
+      "2025-10-29",
+      76848,
+      -0.4
+    ],
+    [
+      "2025-11-06",
+      69089,
+      -0.6
+    ],
+    [
+      "2025-11-09",
+      85500,
+      -0.6
+    ],
+    [
+      "2025-11-11",
+      88591,
+      -0.6
+    ],
+    [
+      "2025-11-16",
+      84737,
+      -0.6
+    ],
+    [
+      "2025-12-01",
+      88591,
+      0.6
+    ],
+    [
+      "2025-12-04",
+      84737,
+      -0.6
+    ],
+    [
+      "2026-01-10",
+      84574,
+      0.3
+    ],
+    [
+      "2026-01-12",
+      88591,
+      0.4
+    ],
+    [
+      "2026-01-17",
+      83724,
+      0.4
+    ],
+    [
+      "2026-01-19",
+      85500,
+      0.3
+    ],
+    [
+      "2026-01-21",
+      69089,
+      0.6
+    ],
+    [
+      "2026-01-24",
+      76848,
+      0.6
+    ],
+    [
+      "2026-01-27",
+      79500,
+      0.6
+    ],
+    [
+      "2026-01-28",
+      95086,
+      0.6
+    ],
+    [
+      "2026-02-03",
+      78760,
+      0.6
+    ],
+    [
+      "2026-02-10",
+      97982,
+      1.2
+    ],
+    [
+      "2026-02-16",
+      84274,
+      0.6
+    ],
+    [
+      "2026-02-18",
+      96723,
+      0.2
+    ],
+    [
+      "2026-02-22",
+      89068,
+      0.4
+    ],
+    [
+      "2026-02-24",
+      98739,
+      0.2
+    ],
+    [
+      "2026-02-28",
+      70355,
+      0.4
+    ],
+    [
+      "2026-03-03",
+      97413,
+      0.6
+    ],
+    [
+      "2026-03-04",
+      83853,
+      1.2
+    ],
+    [
+      "2026-03-05",
+      85747,
+      2.3
+    ],
+    [
+      "2026-03-06",
+      98011,
+      0.6
+    ],
+    [
+      "2026-03-07",
+      94888,
+      2.8
+    ],
+    [
+      "2026-03-08",
+      86757,
+      1.6
+    ],
+    [
+      "2026-03-09",
+      79131,
+      1.1
+    ],
+    [
+      "2026-03-30",
+      86474,
+      0.7
+    ],
+    [
+      "2026-03-31",
+      109347,
+      0.3
+    ],
+    [
+      "2026-04-19",
+      79131,
+      -1.1
+    ],
+    [
+      "2026-04-20",
+      109347,
+      1.1
+    ],
+    [
+      "2026-04-22",
+      79131,
+      -1.1
+    ],
+    [
+      "2026-04-25",
+      109347,
+      1.1
+    ],
+    [
+      "2026-04-26",
+      102870,
+      -0.7
+    ],
+    [
+      "2026-05-06",
+      78021,
+      -1.1
+    ],
+    [
+      "2026-05-07",
+      86757,
+      -0.3
+    ],
+    [
+      "2026-06-01",
+      98011,
+      -4.3
+    ],
+    [
+      "2026-06-02",
+      95634,
+      3.4
+    ],
+    [
+      "2026-06-03",
+      94888,
+      -0.5
+    ],
+    [
+      "2026-06-06",
+      95634,
+      0.5
+    ],
+    [
+      "2026-06-22",
+      94888,
+      -0.5
+    ],
+    [
+      "2026-07-02",
+      82970,
+      -0.5
+    ],
+    [
+      "2026-07-05",
+      83120,
+      -0.5
+    ],
+    [
+      "2026-07-08",
+      83359,
+      -1.1
+    ],
+    [
+      "2026-07-14",
+      98011,
+      -0.6
+    ],
+    [
+      "2026-07-20",
+      101903,
+      -1.1
+    ],
+    [
+      "2026-08-17",
+      85747,
+      0.6
+    ],
+    [
+      "2026-09-01",
+      76104,
+      -0.9
+    ],
+    [
+      "2026-09-03",
+      101903,
+      0.3
+    ],
+    [
+      "2026-09-15",
+      87198,
+      0.2
+    ],
+    [
+      "2026-09-20",
+      85747,
+      0.3
+    ],
+    [
+      "2026-09-22",
+      80577,
+      0.2
+    ],
+    [
+      "2026-09-23",
+      98011,
+      0.3
+    ],
+    [
+      "2026-09-28",
+      75940,
+      0.3
+    ],
+    [
+      "2026-10-06",
+      79610,
+      0.6
+    ],
+    [
+      "2026-10-28",
+      78480,
+      0.1
+    ]
+  ]
+};
+/* ============ fiscal-year data (fresh ERP pull, FY = July–June) ============ */
+(function(){
+  D.yearlyRev = {"2022":4113287948,"2023":8127441675,"2024":12275604169,"2025":17278284181,"2026":4057181692};
+  D.yearlyDel = {"2022":[2663,3585025741],"2023":[9021,9079265064],"2024":[11674,9924500185],"2025":[15263,12064922674],"2026":[5240,3774902442]};
+  D.cat = {"MS Rod":{"2022":3634708443,"2023":10799070496,"2024":12367512829,"2025":13564069171,"2026":4162493430},"Wastage & By-Products":{"2022":2515700,"2023":103326715,"2024":181074833,"2025":707386430,"2026":127056144}};
+  var skuFy = {"B500 DWR 10 mm":[3099233471,3474296976,4954384161],"B500 DWR 16 mm":[1977201135,2900673986,3692491925],"B500 DWR 12 mm":[1155613113,2045191312,2038286000],"B500 DWR 20 mm":[1042824398,1427300224,1525037251],"B500 DWR 8 mm":[864166900,869892317,1075719983],"B500 DWR 25 mm":[213392476,477469167,616951338],"B500 DWR 32 mm":[6415797,252826406,264949850],"B420 DWR 10 mm":[146686945,269782995,300556395],"B420 DWR 12 mm":[156965777,250429981,155415934],"B420 DWR 16 mm":[92477045,143651177,195775993],"B420 DWR 20 mm":[109643602,104996735,140893795],"B420 DWR 25 mm":[101001062,114646085,86911488]};
+  D.sku.forEach(function(s){
+    var k = s[0].replace("Nexa Steel ","");
+    if(skuFy[k]){ s[2]=skuFy[k][0]; s[3]=skuFy[k][1]; s[4]=skuFy[k][2]; }
+  });
+})();
+/* ============ helpers ============ */
+function cr(v){ if(v==null||isNaN(v))return "—"; var c=v/1e7; if(c>=100)return "৳ "+Math.round(c).toLocaleString("en-US")+" Cr"; if(c>=10)return "৳ "+c.toFixed(0)+" Cr"; return "৳ "+c.toFixed(1)+" Cr"; }
+function taka(v){ if(v==null||isNaN(v))return"—"; return "৳ "+Math.round(v).toLocaleString("en-US"); }
+function mt(v){ if(v==null||isNaN(v))return "—"; return Math.round(v).toLocaleString("en-US"); }
+function pct(a,b){ if(!b)return null; return (a-b)/b*100; }
+function pf(v){ if(v==null||isNaN(v))return "—"; return (v>=0?"+":"")+v.toFixed(1)+"%"; }
+function mn(m){ return ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][m-1]; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+/* tooltip */
+var TIP=document.getElementById("tip");
+window.tip=function(ev,text){ TIP.innerHTML=text; TIP.style.display="block"; var x=ev.clientX+16,y=ev.clientY+16; if(x+340>innerWidth)x=ev.clientX-340; if(y+150>innerHeight)y=ev.clientY-150; TIP.style.left=x+"px"; TIP.style.top=y+"px"; };
+window.untip=function(){ TIP.style.display="none"; };
+/* synopsis: append a bulleted takeaway under a chart/table container */
+window.syn=function(id, bullets){
+  var el=document.getElementById(id); if(!el) return;
+  var h='<div class="syn"><b>SMART synopsis</b><ul>';
+  bullets.forEach(function(b){ h+='<li>'+b+'</li>'; });
+  h+='</ul></div>';
+  el.insertAdjacentHTML("afterend", h);
+};
+
+/* ============ derived window series (Jan'25 → Nov'26, 23 mo) ============ */
+var WINLAB = D.priceMonths;
+var SKUKEYS = Object.keys(D.priceNet);
+// revenue aligned to window: skuMonthly runs Jan'23..Nov'26 (47) → window is the last 23
+var winRev = {};
+SKUKEYS.forEach(function(k){ winRev[k] = D.skuMonthly[k].slice(24); });
+var winRevTotal = D.monthly.slice(25).map(function(m){return m[2];}); // index 25 = Jan'25
+// derived volume (MT) = revenue / realised net price
+function fillv(a){ for(var i=0;i<a.length;i++) if(a[i]==null) a[i]=NaN; return a; }
+var winVol = {};
+SKUKEYS.forEach(function(k){
+  winVol[k] = winRev[k].map(function(r,i){ var p=D.priceNet[k][i]; return (r>0 && p!=null) ? r/p : null; });
+});
+var winVolTotal = WINLAB.map(function(_,i){
+  var s=0, any=false;
+  SKUKEYS.forEach(function(k){ var v=winVol[k][i]; if(v!=null){s+=v; any=true;} });
+  return any?s:null;
+});
+var winMRP = {}; SKUKEYS.forEach(function(k){ winMRP[k]=D.priceMRP[k]; });
+
+/* elasticity: OLS slope of Δln(vol) on Δln(price), consecutive non-null months */
+function elasticity(pArr, vArr){
+  var xs=[], ys=[];
+  for(var i=1;i<pArr.length;i++){
+    var p1=pArr[i-1],p2=pArr[i],v1=vArr[i-1],v2=vArr[i];
+    if(p1==null||p2==null||v1==null||v2==null||p1<=0||p2<=0||v1<=0||v2<=0) continue;
+    var dp=Math.log(p2/p1), dq=Math.log(v2/v1);
+    if(!isFinite(dp)||!isFinite(dq)) continue;
+    xs.push(dp); ys.push(dq);
+  }
+  var n=xs.length; if(n<8) return null;
+  var mx=0,my=0; xs.forEach(function(x){mx+=x;}); ys.forEach(function(y){my+=y;}); mx/=n; my/=n;
+  var sxy=0,sxx=0,syy=0;
+  for(var i=0;i<n;i++){ var dx=xs[i]-mx, dy=ys[i]-my; sxy+=dx*dy; sxx+=dx*dx; syy+=dy*dy; }
+  if(sxx===0) return null;
+  var b=sxy/sxx; if(Math.abs(b)>8) return null;
+  var r2 = syy>0 ? (sxy*sxy)/(sxx*syy) : 0;
+  return {b:b, r2:r2, n:n};
+}
+var EL = {};
+SKUKEYS.forEach(function(k){ EL[k]=elasticity(D.priceNet[k], winVol[k]); });
+var OVEL = elasticity(D.priceOverallNet, winVolTotal);
+
+/* price moves tracker (|Δ|>=2%, ratio guard 0.5–2) */
+var JUMPS=[];
+SKUKEYS.forEach(function(k){
+  var p=D.priceNet[k], v=winVol[k];
+  for(var i=1;i<p.length;i++){
+    var a=p[i-1], b=p[i];
+    if(a==null||b==null||a<=0) continue;
+    var ratio=b/a; if(ratio<0.5||ratio>2) continue;
+    var ch=(b-a)/a*100;
+    if(Math.abs(ch)>=2) JUMPS.push({sku:k, idx:i, from:a, to:b, ch:ch, vol: v[i]!=null&&v[i-1]!=null&&v[i-1]>0 ? (v[i]-v[i-1])/v[i-1]*100 : null});
+  }
+});
+JUMPS.sort(function(x,y){return Math.abs(y.ch)-Math.abs(x.ch);});
+
+/* declared MRP changes (|Δ|>=0.5%) */
+var DECL=[];
+SKUKEYS.forEach(function(k){
+  var m=winMRP[k];
+  for(var i=1;i<m.length;i++){
+    var a=m[i-1], b=m[i];
+    if(a==null||b==null||a<=0) continue;
+    var ch=(b-a)/a*100;
+    if(Math.abs(ch)>=0.5) DECL.push({sku:k, idx:i, from:a, to:b, ch:ch});
+  }
+});
+DECL.sort(function(x,y){ return y.idx-x.idx || x.sku.localeCompare(y.sku); });
+
+/* ============ SVG chart engine ============ */
+var NS="http://www.w3.org/2000/svg";
+function el(t,a){ var e=document.createElementNS(NS,t); for(var k in a) e.setAttribute(k,a[k]); return e; }
+function txt(x,y,s,o){ var t=el("text",{x:x,y:y,fill:o&&o.fill||"#c9d7ea","font-size":o&&o.size||"13.5", "text-anchor":o&&o.anchor||"middle"}); t.textContent=s; return t; }
+var C={line:"#26314f",axis:"#33406a",tx:"#e6ecff",muted:"#8fa0c4",bg:"#0d1220"};
+
+function lineChart(container, series, labels, opts){
+  opts=opts||{}; var W=920,H=300,L=64,R=14,T=14,B=36;
+  var svg=el("svg",{width:"100%",height:H,viewBox:"0 0 "+W+" "+H,preserveAspectRatio:"xMinYMin meet"});
+  container.innerHTML=""; container.appendChild(svg);
+  var vals=[]; series.forEach(function(s){s.data.forEach(function(v){if(v!=null&&!isNaN(v))vals.push(v);});});
+  var min=Math.min.apply(null,vals), max=Math.max.apply(null,vals);
+  if(opts.min!=null)min=opts.min; if(opts.max!=null)max=opts.max;
+  if(min===max){min-=1;max+=1;}
+  var pad=(max-min)*0.08; if(opts.pad!==false){min-=pad;max+=pad;}
+  var x0=L,x1=W-R,y0=T,y1=H-B;
+  function X(i){return x0+(i/(labels.length-1))*(x1-x0);}
+  function Y(v){return y1-(v-min)/(max-min)*(y1-y0);}
+  var steps=5; for(var g=0;g<=steps;g++){ var v=min+(max-min)*g/steps; var yy=Y(v);
+    svg.appendChild(el("line",{x1:x0,y1:yy,x2:x1,y2:yy,stroke:C.line,"stroke-width":1}));
+    svg.appendChild(txt(x0-7,yy+3,(opts.yfmt||fmtY)(v),{anchor:"end"}));
+  }
+  svg.appendChild(el("line",{x1:x0,y1:y0,x2:x0,y2:y1,stroke:C.axis,"stroke-width":1}));
+  svg.appendChild(el("line",{x1:x0,y1:y1,x2:x1,y2:y1,stroke:C.axis,"stroke-width":1}));
+  if(opts.ytitle){ var yt=txt(14,(y0+y1)/2,opts.ytitle,{anchor:"middle",fill:C.muted,size:"12.5"}); yt.setAttribute("transform","rotate(-90 14 "+(y0+y1)/2+")"); svg.appendChild(yt); }
+  var colors=opts.colors||["#2f7dff","#22c3aa","#f0b90b","#ff5c7a","#ff8a3d","#a78bfa","#2fd181"];
+  series.forEach(function(s,si){
+    var col=colors[si%colors.length];
+    var d="", open=false;
+    s.data.forEach(function(v,i){ if(v==null||isNaN(v)){ open=false; return; } d+=(open?"L":"M")+X(i).toFixed(1)+","+Y(v).toFixed(1); open=true; });
+    svg.appendChild(el("path",{d:d,fill:"none",stroke:col,"stroke-width":s.w||2.2,"stroke-opacity":.95,"stroke-dasharray":s.dash||""}));
+    if(opts.dots!==false) s.data.forEach(function(v,i){ if(v!=null&&!isNaN(v)){
+      svg.appendChild(el("circle",{cx:X(i),cy:Y(v),r:2.6,fill:col,stroke:C.bg,"stroke-width":1}));
+      svg.appendChild(el("circle",{cx:X(i),cy:Y(v),r:8,fill:"transparent",onmousemove:"tip(event,'"+esc(s.name)+"<br>"+labels[i]+": "+esc((opts.tipfmt||opts.yfmt||fmtY)(v))+"')",onmouseout:"untip()"}));
+    } });
+  });
+  var step=Math.max(1,Math.ceil(labels.length/13));
+  labels.forEach(function(lb,i){ if(i%step===0||i===labels.length-1) svg.appendChild(txt(X(i),H-12,lb,{size:"12"})); });
+  if(series.length>1) legend(container,series,colors);
+  return svg;
+}
+function legend(container,series,colors){
+  var h='<div class="legend">'; series.forEach(function(s,i){ h+='<span><i style="background:'+colors[i%colors.length]+'"></i>'+esc(s.name)+'</span>'; }); h+='</div>';
+  container.insertAdjacentHTML("beforeend",h);
+}
+function fmtY(v){ var c=v/1e7; if(c>=100) return Math.round(c)+"Cr"; if(c>=1) return c.toFixed(1)+"Cr"; return c.toFixed(2)+"Cr"; }
+function fmtMT(v){ return (v/1e3).toFixed(0)+"k"; }
+function ffill(a){ var last=null; for(var i=0;i<a.length;i++){ if(a[i]==null){ a[i]=last; } else { last=a[i]; } } return a; }
+var ALLC=["#f0b90b","#2f7dff","#22c3aa","#ff5c7a","#ff8a3d","#a78bfa","#2fd181","#7fb0ff","#ff9ecb","#9be8d8","#e6ecff"];
+
+function dualLineChart(container, s1, s2, labels, opts){
+  opts=opts||{}; var W=920,H=300,L=64,R=64,T=14,B=36;
+  var svg=el("svg",{width:"100%",height:H,viewBox:"0 0 "+W+" "+H,preserveAspectRatio:"xMinYMin meet"});
+  container.innerHTML=""; container.appendChild(svg);
+  function mm(arr){ var f=arr.filter(function(v){return v!=null&&!isNaN(v);}); var mn2=Math.min.apply(null,f), mx2=Math.max.apply(null,f); if(mn2===mx2){mn2-=1;mx2+=1;} var p=(mx2-mn2)*0.08; return [mn2-p, mx2+p]; }
+  var m1=mm(s1.data), m2=mm(s2.data);
+  var min1=m1[0],max1=m1[1],min2=m2[0],max2=m2[1];
+  var x0=L,x1=W-R,y0=T,y1=H-B;
+  function X(i){return x0+(i/(labels.length-1))*(x1-x0);}
+  function Y1(v){return y1-(v-min1)/(max1-min1)*(y1-y0);}
+  function Y2(v){return y1-(v-min2)/(max2-min2)*(y1-y0);}
+  var steps=5;
+  for(var g=0;g<=steps;g++){ var v=min1+(max1-min1)*g/steps; var yy=Y1(v);
+    svg.appendChild(el("line",{x1:x0,y1:yy,x2:x1,y2:yy,stroke:C.line,"stroke-width":1}));
+    svg.appendChild(txt(x0-7,yy+3,(opts.yfmt||fmtY)(v),{anchor:"end"}));
+  }
+  for(var g=0;g<=steps;g++){ var v=min2+(max2-min2)*g/steps; var yy=Y2(v);
+    svg.appendChild(txt(x1+7,yy+3,(opts.y2fmt||fmtY)(v),{anchor:"start",fill:C.muted}));
+  }
+  svg.appendChild(el("line",{x1:x0,y1:y0,x2:x0,y2:y1,stroke:C.axis,"stroke-width":1}));
+  svg.appendChild(el("line",{x1:x0,y1:y1,x2:x1,y2:y1,stroke:C.axis,"stroke-width":1}));
+  svg.appendChild(el("line",{x1:x1,y1:y0,x2:x1,y2:y1,stroke:C.axis,"stroke-width":1}));
+  if(opts.ytitle){ var yt=txt(14,(y0+y1)/2,opts.ytitle,{anchor:"middle",fill:C.muted,size:"12.5"}); yt.setAttribute("transform","rotate(-90 14 "+(y0+y1)/2+")"); svg.appendChild(yt); }
+  if(opts.y2title){ var yt2=txt(W-14,(y0+y1)/2,opts.y2title,{anchor:"middle",fill:C.muted,size:"12.5"}); yt2.setAttribute("transform","rotate(-90 "+(W-14)+" "+(y0+y1)/2+")"); svg.appendChild(yt2); }
+  function drawSeries(s,color,Y){
+    var d="", open=false;
+    s.data.forEach(function(v,i){ if(v==null||isNaN(v)){open=false;return;} d+=(open?"L":"M")+X(i).toFixed(1)+","+Y(v).toFixed(1); open=true; });
+    svg.appendChild(el("path",{d:d,fill:"none",stroke:color,"stroke-width":s.w||2.2,"stroke-opacity":.95}));
+    if(opts.dots!==false) s.data.forEach(function(v,i){ if(v!=null&&!isNaN(v)){
+      svg.appendChild(el("circle",{cx:X(i),cy:Y(v),r:2.4,fill:color,stroke:C.bg,"stroke-width":1}));
+      svg.appendChild(el("circle",{cx:X(i),cy:Y(v),r:8,fill:"transparent",onmousemove:"tip(event,'"+esc(s.name)+"<br>"+labels[i]+": "+esc((opts.tipfmt||opts.yfmt||fmtY)(v))+"')",onmouseout:"untip()"}));
+    } });
+  }
+  drawSeries(s1,opts.c1||"#22c3aa",Y1);
+  drawSeries(s2,opts.c2||"#2f7dff",Y2);
+  var step=Math.max(1,Math.ceil(labels.length/13));
+  labels.forEach(function(lb,i){ if(i%step===0||i===labels.length-1) svg.appendChild(txt(X(i),H-12,lb,{size:"12"})); });
+  var h='<div class="legend"><span><i style="background:'+(opts.c1||"#22c3aa")+'"></i>'+esc(s1.name)+' (left)</span><span><i style="background:'+(opts.c2||"#2f7dff")+'"></i>'+esc(s2.name)+' (right)</span></div>';
+  container.insertAdjacentHTML("beforeend",h);
+  return svg;
+}
+
+function barChart(container, items, opts){
+  opts=opts||{}; var W=920,H=Math.max(240,items.length*24+40),L=150,R=10,T=12,B=12;
+  var svg=el("svg",{width:"100%",height:H,viewBox:"0 0 "+W+" "+H,preserveAspectRatio:"xMinYMin meet"});
+  container.innerHTML=""; container.appendChild(svg);
+  var max=0; items.forEach(function(i){max=Math.max(max,i.value);});
+  var y0=T,y1=H-B,x0=L,x1=W-R; var bh=(y1-y0)/items.length;
+  items.forEach(function(it,idx){
+    var bw=Math.max(2,(it.value/max)*(x1-x0));
+    var yy=y0+idx*bh+4;
+    svg.appendChild(el("rect",{x:x0,y:yy,width:bw,height:bh-8,rx:3,fill:it.color||"#2f7dff"}));
+    svg.appendChild(txt(x0-8,yy+bh/2-4,it.label,{anchor:"end",fill:C.muted,size:"13"}));
+    svg.appendChild(txt(x0+bw+5,yy+bh/2-4,(opts.fmt||String)(it.value),{anchor:"start",fill:C.tx,size:"12.5"}));
+  });
+  return svg;
+}
+function groupedBar(container, categories, series, opts){
+  opts=opts||{}; var W=920,H=320,L=64,R=14,T=14,B=44;
+  var svg=el("svg",{width:"100%",height:H,viewBox:"0 0 "+W+" "+H,preserveAspectRatio:"xMinYMin meet"});
+  container.innerHTML=""; container.appendChild(svg);
+  var max=0; series.forEach(function(s){s.data.forEach(function(v){max=Math.max(max,v);});});
+  var x0=L,x1=W-R,y0=T,y1=H-B;
+  var step=5; for(var g=0;g<=step;g++){ var v=max*g/step; var yy=y1-(v/max)*(y1-y0);
+    svg.appendChild(el("line",{x1:x0,y1:yy,x2:x1,y2:yy,stroke:C.line,"stroke-width":1}));
+    svg.appendChild(txt(x0-7,yy+3,(opts.yfmt||fmtY)(v),{anchor:"end"}));
+  }
+  svg.appendChild(el("line",{x1:x0,y1:y0,x2:x0,y2:y1,stroke:C.axis,"stroke-width":1}));
+  svg.appendChild(el("line",{x1:x0,y1:y1,x2:x1,y2:y1,stroke:C.axis,"stroke-width":1}));
+  var colors=opts.colors||["#2f7dff","#22c3aa","#f0b90b"];
+  var gw=(x1-x0)/categories.length;
+  categories.forEach(function(c,ci){
+    var n=series.length, bw=gw*0.7/n;
+    series.forEach(function(s,si){
+      var v=s.data[ci]; var bh=(v/max)*(y1-y0);
+      var xx=x0+ci*gw+gw*0.15+si*bw;
+      svg.appendChild(el("rect",{x:xx,y:y1-bh,width:bw-2,height:bh,rx:1,fill:colors[si%colors.length]}));
+    });
+    svg.appendChild(txt(x0+ci*gw+gw*0.5,y1+14,c,{size:"12.5"}));
+  });
+  legend(container,series,colors);
+  return svg;
+}
+
+/* bar + overlaid line on right axis (revenue vs active SKUs) */
+function overlayBarLine(container, labels, bars, line, opts){
+  opts=opts||{}; var W=920,H=300,L=64,R=52,T=14,B=36;
+  var svg=el("svg",{width:"100%",height:H,viewBox:"0 0 "+W+" "+H,preserveAspectRatio:"xMinYMin meet"});
+  container.innerHTML=""; container.appendChild(svg);
+  var maxB=Math.max.apply(null,bars), maxL=Math.max.apply(null,line)*1.15;
+  var x0=L,x1=W-R,y0=T,y1=H-B;
+  var gw=(x1-x0)/labels.length;
+  var steps=4; for(var g=0;g<=steps;g++){ var v=maxB*g/steps; var yy=y1-(v/maxB)*(y1-y0);
+    svg.appendChild(el("line",{x1:x0,y1:yy,x2:x1,y2:yy,stroke:C.line,"stroke-width":1}));
+    svg.appendChild(txt(x0-7,yy+3,(opts.yfmt||fmtY)(v),{anchor:"end"}));
+  }
+  for(var g=0;g<=steps;g++){ var v=maxL*g/steps; svg.appendChild(txt(x1+6,y1-(v/maxL)*(y1-y0)+3,Math.round(v),{anchor:"start",fill:C.muted,size:"12"})); }
+  svg.appendChild(el("line",{x1:x0,y1:y1,x2:x1,y2:y1,stroke:C.axis,"stroke-width":1}));
+  bars.forEach(function(v,i){
+    var bh=(v/maxB)*(y1-y0);
+    svg.appendChild(el("rect",{x:x0+i*gw+gw*0.18,y:y1-bh,width:gw*0.64,height:Math.max(1,bh),rx:1.5,fill:opts.barColor||"#2f7dff","fill-opacity":.85,onmousemove:"tip(event,'"+labels[i]+"<br>"+(opts.barName||"Revenue")+": "+esc((opts.tipfmt||opts.yfmt||fmtY)(v))+"')",onmouseout:"untip()"}));
+  });
+  var d=""; line.forEach(function(v,i){ d+=(i?"L":"M")+(x0+i*gw+gw/2).toFixed(1)+","+(y1-(v/maxL)*(y1-y0)).toFixed(1); });
+  svg.appendChild(el("path",{d:d,fill:"none",stroke:opts.lineColor||"#22c3aa","stroke-width":2}));
+  line.forEach(function(v,i){ svg.appendChild(el("circle",{cx:x0+i*gw+gw/2,cy:y1-(v/maxL)*(y1-y0),r:4,fill:opts.lineColor||"#22c3aa",stroke:C.bg,"stroke-width":1,onmousemove:"tip(event,'"+labels[i]+"<br>"+(opts.lineName||"Line")+": "+Math.round(v)+"')",onmouseout:"untip()"})); });
+  var step=Math.max(1,Math.ceil(labels.length/13));
+  labels.forEach(function(lb,i){ if(i%step===0||i===labels.length-1) svg.appendChild(txt(x0+i*gw+gw/2,H-12,lb,{size:"12"})); });
+  if(opts.ytitle){ var yt=txt(14,(y0+y1)/2,opts.ytitle,{anchor:"middle",fill:C.muted,size:"12.5"}); yt.setAttribute("transform","rotate(-90 14 "+(y0+y1)/2+")"); svg.appendChild(yt); }
+  legend(container,[{name:opts.barName||"Bars"},{name:opts.lineName||"Line"}],[opts.barColor||"#2f7dff",opts.lineColor||"#22c3aa"]);
+  return svg;
+}
+
+/* diverging breadth bars: up red above centre, down teal below */
+function breadthChart(container, labels, upPct, dnPct){
+  var W=920,H=260,L=44,R=14,T=16,B=34;
+  var svg=el("svg",{width:"100%",height:H,viewBox:"0 0 "+W+" "+H,preserveAspectRatio:"xMinYMin meet"});
+  container.innerHTML=""; container.appendChild(svg);
+  var x0=L,x1=W-R,yc=T+(H-T-B)/2, half=(H-T-B)/2;
+  svg.appendChild(el("line",{x1:x0,y1:yc,x2:x1,y2:yc,stroke:C.axis,"stroke-width":1}));
+  [0.25,0.5,0.75].forEach(function(f){
+    svg.appendChild(el("line",{x1:x0,y1:yc-half*f,x2:x1,y2:yc-half*f,stroke:C.line,"stroke-dasharray":"2,4"}));
+    svg.appendChild(el("line",{x1:x0,y1:yc+half*f,x2:x1,y2:yc+half*f,stroke:C.line,"stroke-dasharray":"2,4"}));
+    svg.appendChild(txt(x0-6,yc-half*f+3,(f*100)+"%",{anchor:"end",size:"11.5"}));
+    svg.appendChild(txt(x0-6,yc+half*f+3,-(f*100)+"%",{anchor:"end",size:"11.5"}));
+  });
+  var gw=(x1-x0)/labels.length;
+  labels.forEach(function(lb,i){
+    var u=upPct[i]||0, dn=dnPct[i]||0;
+    if(u>0) svg.appendChild(el("rect",{x:x0+i*gw+gw*0.2,y:yc-half*u,width:gw*0.6,height:Math.max(1,half*u),rx:1.5,fill:"#2fd181","fill-opacity":.85}));
+    if(dn>0) svg.appendChild(el("rect",{x:x0+i*gw+gw*0.2,y:yc,width:gw*0.6,height:Math.max(1,half*dn),rx:1.5,fill:"#ff5c7a","fill-opacity":.85}));
+  });
+  var step=Math.max(1,Math.ceil(labels.length/13));
+  labels.forEach(function(lb,i){ if(i%step===0) svg.appendChild(txt(x0+i*gw+gw/2,H-10,lb,{size:"12"})); });
+  legend(container,[{name:"SKUs raising price"},{name:"SKUs cutting price"}],["#2fd181","#ff5c7a"]);
+  return svg;
+}
+
+/* horizontal diverging bars around zero (elasticity β) */
+function divergingBars(container, rows, opts){
+  opts=opts||{}; var W=920,H=Math.max(240,rows.length*22+46),L=160,R=52,T=22,B=24;
+  var svg=el("svg",{width:"100%",height:H,viewBox:"0 0 "+W+" "+H,preserveAspectRatio:"xMinYMin meet"});
+  container.innerHTML=""; container.appendChild(svg);
+  var maxAbs=0; rows.forEach(function(r){ maxAbs=Math.max(maxAbs,Math.abs(r.value||0)); });
+  if(maxAbs<=0)maxAbs=1;
+  var x0=L,x1=W-R,xc=x0+(x1-x0)/2,hw=(x1-x0)/2;
+  svg.appendChild(el("line",{x1:xc,y1:T-8,x2:xc,y2:H-B,stroke:C.axis,"stroke-width":1}));
+  svg.appendChild(txt(xc,T-12,"0",{size:"11.5"}));
+  var bh=(H-T-B)/rows.length;
+  rows.forEach(function(r,i){
+    if(r.value==null){ svg.appendChild(txt(x0-8,T+i*bh+bh/2-3,r.label,{anchor:"end",fill:C.muted,size:"13"})); svg.appendChild(txt(xc,T+i*bh+bh/2-3,"n/a",{anchor:"start",fill:C.dim,size:"12.5"})); return; }
+    var bw=(Math.abs(r.value)/maxAbs)*hw;
+    var xx=r.value>=0?xc:xc-bw;
+    var col=r.value<0?"#22c3aa":"#ff5c7a";
+    var tipText = opts.tip ? opts.tip(r) : (esc(r.label)+"<br>"+r.value.toFixed(2)+(opts.suffix||""));
+    svg.appendChild(el("rect",{x:xx,y:T+i*bh+4,width:Math.max(1.5,bw),height:bh-8,rx:2,fill:col,"fill-opacity":r.strong?0.95:0.6,onmousemove:"tip(event,'"+tipText+"')",onmouseout:"untip()"}));
+    svg.appendChild(txt(x0-8,T+i*bh+bh/2-3,r.label.length>26?r.label.slice(0,25)+"…":r.label,{anchor:"end",fill:C.muted,size:"13"}));
+    svg.appendChild(txt(r.value>=0?xx+bw+5:xx-5,T+i*bh+bh/2-3,r.value.toFixed(2)+(opts.suffix||""),{anchor:r.value>=0?"start":"end",fill:C.tx,size:"12.5"}));
+  });
+  return svg;
+}
+
+/* within-SKU demeaned log-log scatter */
+function scatterChart(container, groups){
+  var W=920,H=360,L=64,R=20,T=22,B=56;
+  var svg=el("svg",{width:"100%",height:H,viewBox:"0 0 "+W+" "+H,preserveAspectRatio:"xMinYMin meet"});
+  container.innerHTML=""; container.appendChild(svg);
+  var xs=[],ys=[];
+  groups.forEach(function(g){ g.pts.forEach(function(p){ xs.push(p[0]); ys.push(p[1]); }); });
+  var xmin=Math.min.apply(null,xs),xmax=Math.max.apply(null,xs),ymin=Math.min.apply(null,ys),ymax=Math.max.apply(null,ys);
+  var px=(xmax-xmin)*0.08||1, py=(ymax-ymin)*0.08||1;
+  xmin-=px;xmax+=px;ymin-=py;ymax+=py;
+  var x0=L,x1=W-R,y0=T,y1=H-B;
+  function X(v){return x0+(v-xmin)/(xmax-xmin)*(x1-x0);}
+  function Y(v){return y1-(v-ymin)/(ymax-ymin)*(y1-y0);}
+  for(var g2=0;g2<=4;g2++){ var v=xmin+(xmax-xmin)*g2/4; svg.appendChild(el("line",{x1:X(v),y1:y0,x2:X(v),y2:y1,stroke:C.line,"stroke-width":.6})); svg.appendChild(txt(X(v),H-30,v.toFixed(2),{size:"11.5"})); }
+  for(var g3=0;g3<=4;g3++){ var v2=ymin+(ymax-ymin)*g3/4; svg.appendChild(el("line",{x1:x0,y1:Y(v2),x2:x1,y2:Y(v2),stroke:C.line,"stroke-width":.6})); svg.appendChild(txt(x0-7,Y(v2)+3,v2.toFixed(2),{anchor:"end",size:"11.5"})); }
+  svg.appendChild(el("line",{x1:X(0),y1:y0,x2:X(0),y2:y1,stroke:C.axis,"stroke-width":1}));
+  svg.appendChild(el("line",{x1:x0,y1:Y(0),x2:x1,y2:Y(0),stroke:C.axis,"stroke-width":1}));
+  svg.appendChild(txt(x0+8,y0+12,"price up + volume up → cost pass-through",{anchor:"start",fill:C.dim,size:"11"}));
+  svg.appendChild(txt(x1-8,y0+12,"price up + volume down → normal",{anchor:"end",fill:C.dim,size:"11"}));
+  svg.appendChild(txt(x0+8,y1-10,"price down + volume down → unusual",{anchor:"start",fill:C.dim,size:"11"}));
+  svg.appendChild(txt(x1-8,y1-10,"price down + volume up → normal",{anchor:"end",fill:C.dim,size:"11"}));
+  function quad(x,y){
+    if(x>0.004&&y<0) return "price up + volume down → normal demand";
+    if(x< -0.004&&y>0) return "price down + volume up → normal demand";
+    if(x>0.004&&y>0) return "price up + volume up → cost pass-through";
+    if(x< -0.004&&y<0) return "price down + volume down → unusual, investigate";
+    return "near zero — little movement";
+  }
+  groups.forEach(function(g){
+    g.pts.forEach(function(p){
+      var tt="<b>"+esc(g.name)+"</b><br>Δln price "+p[0].toFixed(3)+"<br>Δln volume "+p[1].toFixed(3)+"<br>"+quad(p[0],p[1]);
+      svg.appendChild(el("circle",{cx:X(p[0]),cy:Y(p[1]),r:2.6,fill:g.color,"fill-opacity":g.op||0.6,onmousemove:"tip(event,'"+tt+"')",onmouseout:"untip()"}));
+    });
+  });
+  svg.appendChild(txt((x0+x1)/2,H-12,"Δ ln price (per-SKU demeaned)",{size:"12.5",fill:C.muted}));
+  var yt=txt(14,(y0+y1)/2,"Δ ln volume",{anchor:"middle",fill:C.muted,size:"12.5"}); yt.setAttribute("transform","rotate(-90 14 "+(y0+y1)/2+")"); svg.appendChild(yt);
+  legend(container,[{name:"β < 0 (normal)"},{name:"β > 0 (anomalous)"}],["#22c3aa","#ff5c7a"]);
+  return svg;
+}
+
+function skuSelector(selId, chartId, map, overallArr, labels, ytitle, opts){
+  opts=opts||{};
+  var keys=Object.keys(map);
+  keys.forEach(function(k){ ffill(map[k]); });
+  var sel=document.getElementById(selId);
+  ["Overall (total)","All SKUs (compare)"].concat(keys).forEach(function(o){ var op=document.createElement("option"); op.value=o; op.textContent=o; sel.appendChild(op); });
+  function draw(){
+    var c=document.getElementById(chartId);
+    var yf=opts.yfmt||fmtY;
+    if(sel.value==="Overall (total)"){
+      lineChart(c,[{name:opts.overallName||"Overall",data:overallArr}],labels,{ytitle:ytitle,yfmt:yf,colors:[opts.overallColor||"#2f7dff"]});
+    } else if(sel.value==="All SKUs (compare)"){
+      lineChart(c,keys.map(function(k){return {name:k,data:map[k],w:1.3};}),labels,{ytitle:ytitle,yfmt:yf,colors:ALLC});
+    } else {
+      lineChart(c,[{name:sel.value,data:map[sel.value]}],labels,{ytitle:ytitle,yfmt:yf,colors:[opts.skuColor||"#f0b90b"]});
+    }
+  }
+  sel.addEventListener("change",draw);
+  draw();
+}
+
+/* ============ tabs + deep-link ============ */
+var TABS=["ov","price","margin","sku","mom","chg","pg","el","comp","ms","dealer","area","growth","promo","dda","w2p","mt"];
+function showTab(t){
+  if(TABS.indexOf(t)<0) t="ov";
+  TABS.forEach(function(id){
+    document.getElementById(id).classList.toggle("on", id===t);
+  });
+  [].forEach.call(document.querySelectorAll("#nav button"),function(b){
+    b.classList.toggle("on", b.getAttribute("data-t")===t);
+  });
+  if(location.hash.slice(1)!==t) history.replaceState(null,"","#"+t);
+  window.scrollTo(0,0);
+}
+[].forEach.call(document.querySelectorAll("#nav button"),function(b){
+  b.addEventListener("click",function(){ showTab(b.getAttribute("data-t")); });
+});
+window.addEventListener("hashchange",function(){ showTab(location.hash.slice(1)); });
+/* ============ OVERVIEW ============ */
+(function(){
+  var y25=D.yearlyRev[2025], y24=D.yearlyRev[2024];
+  // active SKUs per month (full 47-mo series)
+  var allSkuKeys=Object.keys(D.skuMonthly);
+  var port=D.skuMonthly["B500 DWR 10 mm"].map(function(_,i){
+    var s=0; allSkuKeys.forEach(function(k){ if(D.skuMonthly[k][i]>0) s++; }); return s;
+  });
+  var labels47=D.monthly.slice(1).map(function(m){return mn(m[1])+"'"+String(m[0]).slice(2);});
+  var rev47=D.monthly.slice(1).map(function(m){return m[2];});
+  // last full month = Oct'26 (Nov'26 partial)
+  var lastFullIdx=port.length-2;
+  // breadth over window
+  var upPct=[],dnPct=[];
+  for(var i=1;i<WINLAB.length;i++){
+    var up=0,dn=0,n=0;
+    SKUKEYS.forEach(function(k){ var a=D.priceNet[k][i-1],b=D.priceNet[k][i]; if(a==null||b==null) return; n++; if(b>a)up++; else if(b<a)dn++; });
+    upPct.push(n?up/n:0); dnPct.push(n?dn/n:0);
+  }
+  upPct.unshift(null); dnPct.unshift(null);
+  var betas=SKUKEYS.map(function(k){return EL[k];}).filter(Boolean).map(function(e){return e.b;}).sort(function(a,b){return a-b;});
+  var medB=betas.length?betas[Math.floor(betas.length/2)]:null;
+  var lastUp=upPct[upPct.length-1], lastDn=dnPct[dnPct.length-1];
+  var k=[
+    {l:"FY2025-26 Net Sales",v:cr(y25),n:pf(pct(y25,y24))+" vs FY2024-25",c:pct(y25,y24)>=0?"up":"down"},
+    {l:"Active SKUs (Oct'26)",v:port[lastFullIdx],n:"of "+allSkuKeys.length+" tracked · Nov'26 partial"},
+    {l:"Tracked rebar SKUs",v:SKUKEYS.length+" with price",n:"clean window Jan'25–Nov'26"},
+    {l:"Median elasticity β",v:medB==null?"—":medB.toFixed(2),n:betas.length+" of "+SKUKEYS.length+" SKUs measurable"},
+    {l:"Price direction (Oct'26)",v:(lastUp*100).toFixed(0)+"% up",n:(lastDn*100).toFixed(0)+"% of SKUs cut price"}
+  ];
+  document.getElementById("ovKpis").innerHTML=k.map(function(x){
+    return '<div class="card kpi"><div class="lab">'+x.l+'</div><div class="val">'+x.v+'</div><div class="note '+(x.c||'')+'">'+x.n+'</div></div>';}).join("");
+
+  // Deficit / (Surplus) card — Q1 FY 26-27 + Q2 (October) FY 26-27 revenue vs budget (DB budget module)
+  (function(){
+    // Budget = budget lines (marketing GL); Revenue = journal entries net GL (revenue GL, net of returns)
+    var rev=77.86+95.54+108.37+105.32, bud=128.40+124.01+130.25+125.48; // Q1 (Jul-Sep) + October combined
+    var def=bud-rev;
+    var isDeficit=def>0.5;
+    var loss=11.2; // bottom-line EAT loss
+    var sharePeak=Math.max.apply(null,D.msNexaShare), shareLatest=D.msNexaShare[D.msNexaShare.length-1];
+    var shareLost=shareLatest-sharePeak;
+    var h='<div class="ind '+(isDeficit?'loss':'win')+'">'+(isDeficit?'Deficit':'Surplus')+'</div>';
+    h+='<div class="m"><div class="l" style="text-transform:none;letter-spacing:0;font-size:12px">Q1 FY 26-27 and Q2 (October) FY 26-27 revenue vs Q1 FY 26-27 and Q2 (October) FY 26-27 Budget</div><div class="v">৳'+rev.toFixed(2)+' Cr <span style="font-size:12px;color:var(--muted)">vs ৳'+bud.toFixed(2)+' Cr budget</span> <span class="'+(def>0?'neg':'pos')+'" style="font-size:12.5px;font-weight:600">('+(def>0?'−':'+')+'৳'+Math.abs(def).toFixed(2)+' Cr '+(def>0?'deficit':'surplus')+')</span></div></div>';
+    h+='<div class="m"><div class="l">Bottom-line loss (EAT)</div><div class="v neg">−৳'+loss.toFixed(2)+' Cr</div></div>';
+    h+='<div class="m"><div class="l">Competitive positioning — share lost</div><div class="v neg">−'+Math.abs(shareLost).toFixed(2)+' pp <span style="font-size:12px;color:var(--muted)">('+sharePeak.toFixed(2)+'% → '+shareLatest.toFixed(2)+'%)</span></div></div>';
+    document.getElementById("lossWinCard").innerHTML=h;
+  })();
+
+  overlayBarLine(document.getElementById("cPort"),labels47,rev47,port,{yfmt:fmtY,ytitle:"Revenue (Tk)",barName:"Net revenue (৳)",lineName:"Active SKUs"});
+  breadthChart(document.getElementById("cBreadth"),WINLAB.slice(1),upPct.slice(1),dnPct.slice(1));
+
+  // insights
+  var grow=D.sku.slice().sort(function(a,b){return pct(b[4],b[3])-pct(a[4],a[3]);})[0];
+  var p10w=D.priceNet["B500 DWR 10 mm"];
+  var floor=Math.min.apply(null,p10w.filter(function(v){return v!=null;})), floorI=p10w.indexOf(floor);
+  var last=D.priceNet["B500 DWR 10 mm"][22];
+  var nxsMs=D.ms.find(function(m){return m[0]==="Nexa Steel";});
+  var elNeg=betas.filter(function(b){return b<-1;}).length, elIn=betas.filter(function(b){return b>=-1&&b<=0;}).length, elPos=betas.filter(function(b){return b>0;}).length;
+  var commTotal=0; D.commType.forEach(function(c){commTotal+=c[1];});
+  var ins=[
+    ["Revenue grew from "+cr(D.yearlyRev[2023])+" (FY2023-24) to "+cr(y25)+" (FY2025-26), +"+pct(y25,y24).toFixed(1)+"% YoY.","The mix shift to larger-diameter B500 (25/32 mm) is the main driver — a premium-grade mix, not just volume."],
+    ["B500 DWR 10 mm bottomed at "+taka(floor)+"/MT in "+WINLAB[floorI]+" and recovered to "+taka(last)+"/MT by Nov'26 (+"+((last-floor)/floor*100).toFixed(1)+"%).","Pricing power returned with the Mar'26 scrap-cost surge; hold this band or volume leaks to Vega/Alpha offers."],
+    [grow[0]+" is the fastest-growing SKU ("+pf(pct(grow[4],grow[3]))+" FY24-25 → FY25-26).","Confirm whether this is real demand or a one-off project order before expanding stock."],
+    ["Nexa Steel steel market share moved 2.06% → 2.59%, the fastest of the named mills (+21.7%).","Share gains came while total market volume shrank — competitors' retreat matters as much as Nexa's push."],
+    [elNeg+" SKUs price-elastic (β<−1), "+elIn+" inelastic (−1..0), "+elPos+" anomalous (β>0).","Inelastic grades (mostly B500 core sizes) carry headroom for price; elastic/anomalous ones need a margin check before any hike."],
+    ["Dealer commission totals "+cr(commTotal)+" over 3 years (~"+(commTotal/D.yearlyRev[2025]*100).toFixed(1)+"% of one FY).","'Monthly' incentive is 66% of the pool — renegotiating its target basis is the fastest NP% lever."]
+  ];
+  document.getElementById("insights").innerHTML=ins.map(function(p){
+    return '<div class="insight"><b>'+p[0]+'</b><br><span class="small">'+p[1]+'</span></div>';}).join("");
+
+  // journey table (top 8 by FY25-26 revenue)
+  var byName={}; D.sku.forEach(function(s){ byName[s[0].replace("Nexa Steel ","")]=s; });
+  var jrows=SKUKEYS.slice().sort(function(a,b){ return (byName[b]?byName[b][4]:0)-(byName[a]?byName[a][4]:0); }).slice(0,8);
+  var th='<table><thead><tr><th>SKU</th><th>Price Jan\'25</th><th>Price Nov\'26</th><th>Move</th><th>Vol Jan\'25 (MT)</th><th>Vol Oct\'26 (MT)</th><th>β</th></tr></thead><tbody>';
+  jrows.forEach(function(k){
+    var p=D.priceNet[k], v=winVol[k];
+    var first=p[0], lastP=null, lastI=-1;
+    for(var i=p.length-1;i>=0;i--){ if(p[i]!=null){ lastP=p[i]; lastI=i; break; } }
+    var mv=(first!=null&&lastP!=null)?(lastP-first)/first*100:null;
+    var vFirst=v[0], vLast=null;
+    for(var i=v.length-2;i>=0;i--){ if(v[i]!=null){ vLast=v[i]; break; } } // last FULL month (Oct'26)
+    th+='<tr class="drill" onclick="openMom(\''+esc(k)+'\')"><td><b>'+esc(k)+'</b></td><td>'+taka(first)+'</td><td>'+taka(lastP)+'</td>';
+    th+='<td class="'+(mv==null?"":mv>=0?"pos":"neg")+'">'+(mv==null?"—":pf(mv))+'</td>';
+    th+='<td>'+mt(vFirst)+'</td><td>'+mt(vLast)+'</td>';
+    th+='<td>'+(EL[k]?EL[k].b.toFixed(2):'<span class="tag t-mut">n/a</span>')+'</td></tr>';
+  });
+  th+='</tbody></table>';
+  document.getElementById("cJourney").innerHTML=th;
+})();
+
+/* ============ PRICE ============ */
+(function(){
+  var html='<table><thead><tr><th>Product</th><th>Grade</th><th>Net price (Tk/MT)</th><th>Avg cost (Tk/MT)</th><th>GP%</th></tr></thead><tbody>';
+  D.price25.forEach(function(p){
+    var gp=(p[2]-p[3])/p[2]*100;
+    html+='<tr><td><b>'+p[0]+'</b></td><td><span class="pill p-'+(p[1]==="B500"?"b500":"b420")+'">'+p[1]+'</span></td>';
+    html+='<td><b>'+taka(p[2])+'</b></td><td>'+taka(p[3])+'</td><td class="'+(gp>=0?"pos":"neg")+'">'+gp.toFixed(1)+'%</td></tr>';
+  });
+  html+='</tbody></table>';
+  document.getElementById("priceTable").innerHTML=html;
+  skuSelector("netPriceSel","netPriceChart",D.priceNet,D.priceOverallNet,D.priceMonths,"Tk / MT",{yfmt:fmtMT,overallName:"Overall net price"});
+  skuSelector("grossPriceSel","grossPriceChart",D.priceGross,D.priceOverallGross,D.priceMonths,"Tk / MT",{yfmt:fmtMT,overallName:"Overall gross price"});
+  skuSelector("mrpPriceSel","mrpPriceChart",D.priceMRP,D.priceOverallMRP,D.priceMonths,"Tk / MT",{yfmt:fmtMT,overallName:"Overall MRP"});
+  lineChart(document.getElementById("cThreePrice"),[
+    {name:"Net (realised)",data:D.priceOverallNet,w:2.6},
+    {name:"MRP (announced)",data:D.priceOverallMRP,w:1.8},
+    {name:"Gross (list)",data:D.priceOverallGross,w:2,dash:"7,5"}
+  ],D.priceMonths,{yfmt:fmtMT,ytitle:"Tk / MT",tipfmt:function(v){return taka(v);},colors:["#2f7dff","#22c3aa","#f0b90b"]});
+})();
+
+/* ============ GP / NP / NET ============ */
+(function(){
+  var net=83000,cost=76000,commPerTon=1100,freight=750;
+  var items=[
+    {label:"Gross price (list)",value:net,color:"#3b4f8a"},
+    {label:"Net price (realised, ≈0% disc.)",value:net,color:"#2f7dff"},
+    {label:"Avg production cost",value:cost,color:"#ff5c7a"},
+    {label:"Dealer commission/MT (~1.3%)",value:commPerTon,color:"#ff8a3d"},
+    {label:"Freight & other/MT (~0.9%)",value:freight,color:"#8fa0c4"}
+  ];
+  barChart(document.getElementById("waterfall"),items,{fmt:function(v){return taka(v)+"/MT";}});
+  var scrapCost=[56478,58704,59410,58949,58903,56547,54295,50969,51471,51527,53107,51742];
+  lineChart(document.getElementById("gpnpTrend"),[
+    {name:"Net price (B500 10 mm)",data:D.p10.slice(0,12),w:2.4},
+    {name:"Scrap cost (raw material)",data:scrapCost,w:1.6}
+  ],D.priceMonths.slice(0,12),{yfmt:fmtMT,ytitle:"Tk / MT",colors:["#f0b90b","#ff5c7a"]});
+  var html='<table><thead><tr><th>Product</th><th>Net price (FY25-26)</th><th>Avg cost</th><th>GP/MT</th><th>GP%</th><th>Est. NP%</th></tr></thead><tbody>';
+  D.price25.forEach(function(p){
+    var gp=p[2]-p[3],gpPct=gp/p[2]*100,npPct=gpPct-2.1;
+    html+='<tr><td><b>'+p[0]+'</b></td><td>'+taka(p[2])+'</td><td>'+taka(p[3])+'</td><td class="'+(gp>=0?"pos":"neg")+'">'+taka(gp)+'</td><td class="pos">'+gpPct.toFixed(1)+'%</td><td>~'+npPct.toFixed(1)+'%</td></tr>';
+  });
+  html+='</tbody></table><div class="small" style="margin-top:8px">GP% = (net price − avg cost)/net price. Est. NP% = GP% − ~2.1% (dealer commission ~1.3% + freight ~0.8%). Directional — final NP needs finance P&amp;L.</div>';
+  document.getElementById("marginTable").innerHTML=html;
+})();
+/* ============ ALL SKUs (sortable / filterable / drill) ============ */
+var byNameG={}; D.sku.forEach(function(s){ byNameG[s[0].replace("Nexa Steel ","")]=s; });
+var SKUROWS=SKUKEYS.map(function(k){
+  var p=D.priceNet[k], v=winVol[k], m=winMRP[k];
+  var first=null,last=null,lastI=-1,absMov=0,cnt=0;
+  for(var i=0;i<p.length;i++){ if(p[i]==null) continue; if(first==null)first=p[i]; last=p[i]; lastI=i;
+    if(i>0&&p[i-1]!=null){ absMov+=Math.abs(p[i]-p[i-1])/p[i-1]*100; cnt++; } }
+  var fLast=null; for(var i=v.length-2;i>=0;i--){ if(v[i]!=null){ fLast=v[i]; break; } }
+  var winMove=(first!=null&&last!=null)?(last-first)/first*100:null;
+  var last3=lastI>=3&&p[lastI-3]!=null&&p[lastI]!=null?(p[lastI]-p[lastI-3])/p[lastI-3]*100:null;
+  var e=EL[k];
+  var rmrp=(last!=null&&m[lastI]!=null)?last/m[lastI]:null;
+  var fy25=byNameG[k]?byNameG[k][4]:null;
+  var grade=k.indexOf("B500")===0?"B500":"B420";
+  return {key:k, grade:grade, rev:fy25, price:last, first:first, move:winMove, avgMoM:cnt?absMov/cnt:null, last3:last3,
+          b:e?e.b:null, r2:e?e.r2:null, n:e?e.n:null, vol:fLast, rmrp:rmrp};
+});
+var ST={sort:"rev",dir:-1,q:"",grade:"all",el:"all",move:"all"};
+function elTag(r){
+  if(r.b==null) return '<span class="tag t-mut">n/a</span>';
+  if(r.b<-1) return '<span class="tag t-warn">elastic</span>';
+  if(r.b<=0) return '<span class="tag t-neg">inelastic</span>';
+  return '<span class="tag t-pos">anomal.</span>';
+}
+function renderSku(){
+  var rows=SKUROWS.filter(function(r){
+    if(ST.grade!=="all"&&r.grade!==ST.grade) return false;
+    if(ST.el==="neg"&&(r.b==null||r.b>=0)) return false;
+    if(ST.el==="pos"&&(r.b==null||r.b<=0)) return false;
+    if(ST.el==="na"&&r.b!=null) return false;
+    if(ST.move==="r3"&&!(r.last3!=null&&r.last3>0)) return false;
+    if(ST.move==="big"&&!(r.move!=null&&Math.abs(r.move)>10)) return false;
+    if(ST.q&&r.key.toLowerCase().indexOf(ST.q.toLowerCase())<0) return false;
+    return true;
+  });
+  rows.sort(function(a,b){
+    var x=a[ST.sort], y=b[ST.sort];
+    if(x==null) x=-9e9; if(y==null) y=-9e9;
+    if(typeof x==="string") return x.localeCompare(y)*ST.dir;
+    return (x-y)*ST.dir;
+  });
+  document.getElementById("skuCount").textContent="· "+rows.length+" of "+SKUROWS.length+" SKUs";
+  function th(key,label){ return '<th data-s="'+key+'"'+(ST.sort===key?' class="sorted'+(ST.dir<0?"":" asc")+'"':'')+'>'+label+(ST.sort===key?(ST.dir<0?" ↓":" ↑"):"")+'</th>'; }
+  var h='<table><thead><tr>'+th("key","SKU")+th("grade","Grade")+th("rev","FY25-26 rev")+th("price","Price Nov\'26")+th("move","Window move")+th("avgMoM","Avg MoM swing")+th("vol","Vol Oct\'26 (MT)")+th("b","β")+th("r2","R²")+th("rmrp","Realised ÷ MRP")+'</tr></thead><tbody>';
+  rows.forEach(function(r){
+    var rmrpBad = r.rmrp!=null && (r.rmrp<0.35||r.rmrp>1.6);
+    h+='<tr class="drill" onclick="openMom(\''+esc(r.key)+'\')">';
+    h+='<td><b>'+esc(r.key)+'</b></td><td><span class="pill p-'+(r.grade==="B500"?"b500":"b420")+'">'+r.grade+'</span></td>';
+    h+='<td>'+cr(r.rev)+'</td><td>'+taka(r.price)+'</td>';
+    h+='<td class="'+(r.move==null?"":r.move>=0?"pos":"neg")+'">'+(r.move==null?"—":pf(r.move))+'</td>';
+    h+='<td>'+(r.avgMoM==null?"—":r.avgMoM.toFixed(2)+"%")+'</td><td>'+mt(r.vol)+'</td>';
+    h+='<td>'+(r.b==null?"—":r.b.toFixed(2))+' '+elTag(r)+'</td>';
+    h+='<td>'+(r.r2==null?"—":r.r2.toFixed(2))+'</td>';
+    h+='<td>'+(r.rmrp==null||rmrpBad?'<span class="tag t-mut" title="outside 0.35–1.6 sanity band">—</span>':(r.rmrp*100).toFixed(0)+"%")+'</td></tr>';
+  });
+  h+='</tbody></table>';
+  document.getElementById("tSku").innerHTML=h;
+  [].forEach.call(document.querySelectorAll("#tSku th[data-s]"),function(t){
+    t.addEventListener("click",function(){
+      var s=t.getAttribute("data-s");
+      if(ST.sort===s) ST.dir*=-1; else { ST.sort=s; ST.dir=-1; }
+      renderSku();
+    });
+  });
+}
+document.getElementById("q").addEventListener("input",function(){ ST.q=this.value; renderSku(); });
+document.getElementById("fGrade").addEventListener("change",function(){ ST.grade=this.value; renderSku(); });
+document.getElementById("fEl").addEventListener("change",function(){ ST.el=this.value; renderSku(); });
+document.getElementById("fMove").addEventListener("change",function(){ ST.move=this.value; renderSku(); });
+renderSku();
+
+(function(){
+  var rod25=D.cat["MS Rod"][2025], rod24=D.cat["MS Rod"][2024];
+  var top=D.sku.slice().sort(function(a,b){return b[4]-a[4];});
+  var grow=D.sku.slice().sort(function(a,b){return pct(b[4],b[3])-pct(a[4],a[3]);})[0];
+  var decl=D.sku.slice().sort(function(a,b){return pct(a[4],a[3])-pct(b[4],b[3]);})[0];
+  var k=[
+    {l:"FY2025-26 MS Rod",v:cr(rod25),n:pf(pct(rod25,rod24))+" YoY",c:"up"},
+    {l:"Top SKU",v:"B500 10 mm",n:cr(top[0][4])+" · "+(top[0][4]/rod25*100).toFixed(0)+"% of MS Rod"},
+    {l:"Fastest grower",v:grow[0].replace("Nexa Steel ",""),n:pf(pct(grow[4],grow[3])),c:"up"},
+    {l:"Slowest SKU",v:decl[0].replace("Nexa Steel ",""),n:pf(pct(decl[4],decl[3])),c:"down"},
+    {l:"Wastage/by-product",v:cr(D.cat["Wastage & By-Products"][2025]),n:pf(pct(D.cat["Wastage & By-Products"][2025],D.cat["Wastage & By-Products"][2024])),c:"up"}
+  ];
+  document.getElementById("skuKpis").innerHTML=k.map(function(x){
+    return '<div class="card kpi"><div class="lab">'+x.l+'</div><div class="val">'+x.v+'</div><div class="note '+(x.c||"")+'">'+x.n+'</div></div>';}).join("");
+  var months=D.monthly.slice(1);
+  var labels=months.map(function(m){return mn(m[1])+"'"+String(m[0]).slice(2);});
+  skuSelector("skuSel","skuRevMonthly",D.skuMonthly,months.map(function(m){return m[2];}),labels,"Net revenue (Tk)",{yfmt:fmtY,overallName:"Overall net revenue"});
+  barChart(document.getElementById("skuRank"),top.map(function(s){return {label:s[0].replace("Nexa Steel ",""),value:s[4],color:s[1]==="B500"?"#f0b90b":"#2f7dff"};}),{fmt:cr});
+})();
+
+/* ============ SKU MONTH-ON-MONTH ============ */
+(function(){
+  var sel=document.getElementById("momPick");
+  ["Overall (total)"].concat(SKUKEYS).forEach(function(o){ var op=document.createElement("option"); op.value=o; op.textContent=o; sel.appendChild(op); });
+  window.openMom=function(code){
+    sel.value=code; showTab("mom"); renderMom();
+  };
+  function renderMom(){
+    var isAll=sel.value==="Overall (total)";
+    var key=isAll?null:sel.value;
+    document.getElementById("momTitle").textContent=(isAll?"Overall (total)":key)+" — month-on-month";
+    var rng=document.getElementById("momRange").value;
+    var p=key?D.priceNet[key]:D.priceOverallNet, v=key?winVol[key]:winVolTotal, r=key?winRev[key]:winRevTotal, m=key?winMRP[key]:D.priceOverallMRP;
+    var n=rng==="all"?p.length:Math.min(+rng,p.length);
+    var s=p.length-n;
+    var labs=WINLAB.slice(s), pp=p.slice(s), vv=v.slice(s), rr=r.slice(s), mm=m.slice(s);
+    dualLineChart(document.getElementById("momChart"),
+      {name:"Volume (MT)",data:vv.map(function(x){return x==null?0:x;}),w:2},
+      {name:"Net price (Tk/MT)",data:pp.map(function(x){return x==null?0:x;})},
+      labs,{yfmt:function(x){return (x/1e3).toFixed(0)+"k MT";},y2fmt:fmtMT,ytitle:"Volume",y2title:"Tk/MT",c1:"#2f7dff",c2:"#f0b90b"});
+    var h='<table><thead><tr><th>Month</th><th>Revenue</th><th>Net price</th><th>Δ price</th><th>Vol (MT, derived)</th><th>Δ vol</th><th>MRP</th><th>Realised÷MRP</th></tr></thead><tbody>';
+    var prev=null;
+    for(var i=0;i<labs.length;i++){
+      var dp=null,dv=null;
+      if(prev!=null&&pp[i]!=null&&prev.p!=null&&prev.p>0) dp=(pp[i]-prev.p)/prev.p*100;
+      if(prev!=null&&vv[i]!=null&&prev.v!=null&&prev.v>0) dv=(vv[i]-prev.v)/prev.v*100;
+      var rmrp=(pp[i]!=null&&mm[i]!=null)?pp[i]/mm[i]:null;
+      var rmrpTxt=(rmrp==null||rmrp<0.35||rmrp>1.6)?'—':(rmrp*100).toFixed(0)+"%";
+      h+='<tr><td>'+labs[i]+'</td><td>'+cr(rr[i])+'</td><td>'+taka(pp[i])+'</td>';
+      h+='<td class="'+(dp==null?"":dp>=0?"pos":"neg")+'">'+(dp==null?"—":pf(dp))+'</td>';
+      h+='<td>'+mt(vv[i])+'</td>';
+      h+='<td class="'+(dv==null?"":dv>=0?"pos":"neg")+'">'+(dv==null?"—":pf(dv))+'</td>';
+      h+='<td>'+taka(mm[i])+'</td><td>'+rmrpTxt+'</td></tr>';
+      if(pp[i]!=null||rr[i]>0) prev={p:pp[i],v:vv[i]};
+    }
+    h+='</tbody></table>';
+    document.getElementById("tMom").innerHTML=h;
+  }
+  sel.addEventListener("change",renderMom);
+  document.getElementById("momRange").addEventListener("change",renderMom);
+  // initial: biggest FY25-26 SKU
+  sel.value="B500 DWR 10 mm";
+  renderMom();
+})();
+
+/* ============ PRICE CHANGE TRACKER ============ */
+(function(){
+  function jumpRows(list){
+    var h='<table><thead><tr><th>SKU</th><th>Month</th><th>From</th><th>To</th><th>Δ price</th><th>Δ volume (same mo)</th></tr></thead><tbody>';
+    list.slice(0,200).forEach(function(j){
+      h+='<tr class="drill" onclick="openMom(\''+esc(j.sku)+'\')"><td><b>'+esc(j.sku)+'</b></td><td>'+WINLAB[j.idx]+'</td>';
+      h+='<td>'+taka(j.from)+'</td><td>'+taka(j.to)+'</td>';
+      h+='<td class="'+(j.ch>=0?"pos":"neg")+'"><b>'+pf(j.ch)+'</b></td>';
+      h+='<td class="'+(j.vol==null?"":j.vol>=0?"pos":"neg")+'">'+(j.vol==null?"—":pf(j.vol))+'</td></tr>';
+    });
+    return h+'</tbody></table>';
+  }
+  function renderJ(){
+    var q=document.getElementById("chq").value.toLowerCase();
+    var list=JUMPS.filter(function(j){ return !q||j.sku.toLowerCase().indexOf(q)>=0||WINLAB[j.idx].toLowerCase().indexOf(q)>=0; });
+    document.getElementById("chc").textContent="· "+list.length+" moves (≥2%, showing top 200)";
+    document.getElementById("tJump").innerHTML=jumpRows(list);
+  }
+  document.getElementById("chq").addEventListener("input",renderJ);
+  renderJ();
+  var h='<table><thead><tr><th>SKU</th><th>Month</th><th>MRP from</th><th>MRP to</th><th>Δ MRP</th></tr></thead><tbody>';
+  DECL.slice(0,250).forEach(function(d){
+    h+='<tr><td><b>'+esc(d.sku)+'</b></td><td>'+WINLAB[d.idx]+'</td><td>'+taka(d.from)+'</td><td>'+taka(d.to)+'</td>';
+    h+='<td class="'+(d.ch>=0?"pos":"neg")+'">'+pf(d.ch)+'</td></tr>';
+  });
+  h+='</tbody></table>';
+  document.getElementById("tDecl").innerHTML=h;
+  // Trade (mill-rate) changes
+  function tradeRows(list){
+    var th='<table><thead><tr><th>Date</th><th>Trade rate</th><th>Δ rate</th></tr></thead><tbody>';
+    list.forEach(function(c){ th+='<tr><td>'+c[0]+'</td><td>'+taka(c[1])+'</td><td class="'+(c[2]>=0?"pos":"neg")+'">'+pf(c[2])+'</td></tr>'; });
+    return th+'</tbody></table>';
+  }
+  var tList=D.tradeChanges.slice().reverse();
+  document.getElementById("tTradeDecl").innerHTML=tradeRows(tList);
+  document.getElementById("tq").addEventListener("input",function(){
+    var q=this.value.toLowerCase();
+    document.getElementById("tTradeDecl").innerHTML=tradeRows(tList.filter(function(c){return c[0].indexOf(q)>=0;}));
+  });
+})();
+
+/* ============ DECLARED PRICE GRID ============ */
+(function(){
+  var trade=D.tradeMonthly, curTrade=trade[trade.length-1];
+  function last(arr){ for(var i=arr.length-1;i>=0;i--){ if(arr[i]!=null) return arr[i]; } return null; }
+  var mrpVals=SKUKEYS.map(function(k){return last(D.priceMRP[k]);}).filter(function(v){return v!=null;});
+  var netVals=SKUKEYS.map(function(k){return last(D.priceNet[k]);}).filter(function(v){return v!=null;});
+  var avgMrp=mrpVals.reduce(function(a,b){return a+b;},0)/mrpVals.length;
+  var avgNet=netVals.reduce(function(a,b){return a+b;},0)/netVals.length;
+  var lastRev=D.tradeChanges[D.tradeChanges.length-1][0];
+  var k=[
+    {l:"Current Trade rate",v:taka(curTrade),n:"mill rate, last set "+lastRev},
+    {l:"SKUs declared",v:SKUKEYS.length,n:"rebar grades in price setup"},
+    {l:"Avg MRP",v:taka(Math.round(avgMrp)),n:"announced list price"},
+    {l:"Realised vs Trade",v:pf((avgNet/curTrade-1)*100),n:"avg realised net gap"}
+  ];
+  document.getElementById("pgKpis").innerHTML=k.map(function(x){
+    return '<div class="card kpi"><div class="lab">'+x.l+'</div><div class="val">'+x.v+'</div><div class="note">'+x.n+'</div></div>';}).join("");
+  function tkf(v){ return (v/1000).toFixed(0)+"k"; }
+  lineChart(document.getElementById("cTradeTrend"),[
+    {name:"Trade (mill) rate",data:trade,w:2.2},
+    {name:"Realised net price",data:D.priceOverallNet,w:2.2}
+  ],WINLAB,{ytitle:"Tk / MT",yfmt:tkf,tipfmt:function(v){return taka(v);},colors:["#f0b90b","#2f7dff"]});
+  // realised vs Trade gap per SKU (diverging)
+  var gapRows=SKUKEYS.map(function(k){
+    var n=last(D.priceNet[k]); var val=n!=null?(n/curTrade-1)*100:null;
+    return {label:k, value:val};
+  }).sort(function(a,b){return (b.value==null?-99:b.value)-(a.value==null?-99:a.value);});
+  divergingBars(document.getElementById("cGap"),gapRows,{suffix:"%"});
+  // grid table
+  var h='<table><thead><tr><th>SKU</th><th>Trade rate</th><th>MRP</th><th>Realised</th><th>Realised vs Trade</th><th>MRP vs Trade</th></tr></thead><tbody>';
+  SKUKEYS.forEach(function(k){
+    var n=last(D.priceNet[k]), m=last(D.priceMRP[k]);
+    h+='<tr><td><b>'+esc(k)+'</b></td><td>'+taka(curTrade)+'</td><td>'+(m!=null?taka(m):"—")+'</td><td>'+(n!=null?taka(n):"—")+'</td>';
+    h+='<td class="'+(n!=null&&n>=curTrade?"pos":"neg")+'">'+(n!=null?pf((n/curTrade-1)*100):"—")+'</td>';
+    h+='<td class="'+(m!=null&&m>=curTrade?"pos":"neg")+'">'+(m!=null?pf((m/curTrade-1)*100):"—")+'</td></tr>';
+  });
+  h+='</tbody></table>';
+  document.getElementById("tGrid").innerHTML=h;
+})();
+
+/* ============ ELASTICITY ============ */
+(function(){
+  function elasticityRead(b, r2, n){
+    if(b==null) return "Not measurable — needs at least 8 valid month-over-month pairs with real price variation.";
+    var fit = (r2==null) ? "" : (r2<0.10 ? "Weak fit (R² "+r2.toFixed(2)+") — treat as a direction only." : (r2<0.30 ? "Moderate fit (R² "+r2.toFixed(2)+")." : "Strong fit (R² "+r2.toFixed(2)+")."));
+    var head, body;
+    if(b>0){
+      head = "β = +"+b.toFixed(2)+" — anomalous (positive)";
+      body = "Price and volume move in the SAME direction: a 10% price rise is linked to a ~"+(b*10).toFixed(0)+"% volume RISE. Usually scrap-cost pass-through (raw-material cost drives both) or lumpy project orders — not a demand response.";
+    } else if(b<-1){
+      head = "β = "+b.toFixed(2)+" — elastic";
+      body = "Volume reacts more than price: a 10% price rise is linked to a ~"+Math.abs(b*10).toFixed(0)+"% volume DROP, so revenue FALLS. Hike with caution.";
+    } else {
+      head = "β = "+b.toFixed(2)+" — inelastic";
+      body = "Volume is sticky to price: a 10% price rise only trims volume ~"+Math.abs(b*10).toFixed(0)+"%, so revenue RISES. There is price headroom.";
+    }
+    return head+"<br>"+body+(fit?"<br>"+fit:"")+(n?"<br>Based on "+n+" month-pairs.":"");
+  }
+  function r2Read(r2){
+    return "R² = "+r2.toFixed(2)+" — how much of the month-to-month volume variation the price move explains."+(r2<0.10?" Weak fit: treat β as a direction only.":(r2<0.30?" Moderate fit.":" Strong fit."));
+  }
+  var meas=0, neg=0, inel=0, anom=0;
+  SKUKEYS.forEach(function(k){ var e=EL[k]; if(!e) return; meas++; if(e.b<-1)neg++; else if(e.b<=0)inel++; else anom++; });
+  var k=[
+    {l:"SKUs measurable",v:meas+" / "+SKUKEYS.length,n:"≥8 month-pairs, |β|≤8"},
+    {l:"Elastic (β < −1)",v:neg,n:"price up → volume falls more"},
+    {l:"Inelastic (−1 … 0)",v:inel,n:"headroom to hold or raise price"},
+    {l:"Anomalous (β > 0)",v:anom,n:"check data & project orders"}
+  ];
+  document.getElementById("elKpis").innerHTML=k.map(function(x){
+    return '<div class="card kpi"><div class="lab">'+x.l+'</div><div class="val">'+x.v+'</div><div class="note">'+x.n+'</div></div>';}).join("");
+  var rows=SKUKEYS.map(function(key){ return {label:key, value:EL[key]?EL[key].b:null, strong:EL[key]?EL[key].r2>0.2:false}; })
+    .sort(function(a,b){ return (b.value==null?-99:b.value)-(a.value==null?-99:a.value); });
+  divergingBars(document.getElementById("cEl"),rows,{tip:function(r){
+    var e=EL[r.label];
+    return "<b>"+esc(r.label)+"</b><br>"+elasticityRead(e?e.b:null, e?e.r2:null, e?e.n:0);
+  }});
+  // scatter: per-SKU demeaned Δln pairs (one group per SKU, so hover can name it)
+  var groups=[];
+  SKUKEYS.forEach(function(key){
+    var e=EL[key]; if(!e) return;
+    var pArr=D.priceNet[key], vArr=winVol[key], raw=[];
+    for(var i=1;i<pArr.length;i++){
+      var p1=pArr[i-1],p2=pArr[i],v1=vArr[i-1],v2=vArr[i];
+      if(p1==null||p2==null||v1==null||v2==null||p1<=0||p2<=0||v1<=0||v2<=0) continue;
+      raw.push([Math.log(p2/p1),Math.log(v2/v1)]);
+    }
+    if(raw.length<8) return;
+    var mx=0,my=0; raw.forEach(function(r){mx+=r[0];my+=r[1];}); mx/=raw.length; my/=raw.length;
+    var pts=raw.map(function(r){ return [r[0]-mx, r[1]-my]; });
+    groups.push({name:key, pts:pts, color:e.b<0?"#22c3aa":"#ff5c7a", op:e.r2>0.2?0.8:0.45});
+  });
+  scatterChart(document.getElementById("cScatter"),groups);
+  var h='<table><thead><tr><th>SKU</th><th>β (first-diff)</th><th>R²</th><th>Pairs</th><th>Read</th></tr></thead><tbody>';
+  SKUKEYS.forEach(function(key){
+    var e=EL[key];
+    h+='<tr class="drill" onclick="openMom(\''+esc(key)+'\')"><td><b>'+esc(key)+'</b></td>';
+    if(!e){
+      var nt="Not measurable — needs at least 8 valid month-over-month pairs with real price variation. This SKU sells too intermittently to estimate a reliable slope.";
+      h+='<td onmousemove="tip(event,\''+nt+'\')" onmouseout="untip()">—</td><td>—</td><td>—</td>';
+      h+='<td onmousemove="tip(event,\''+nt+'\')" onmouseout="untip()"><span class="tag t-mut">not measurable</span></td></tr>';
+      return;
+    }
+    var full=elasticityRead(e.b,e.r2,e.n);
+    var read=e.b<-1 ? "elastic" : (e.b<=0 ? "inelastic" : "anomalous");
+    var readClass=e.b<-1 ? "t-neg" : (e.b<=0 ? "t-neg" : "t-pos");
+    h+='<td onmousemove="tip(event,\''+full+'\')" onmouseout="untip()">'+e.b.toFixed(2)+'</td>';
+    h+='<td onmousemove="tip(event,\''+r2Read(e.r2)+'\')" onmouseout="untip()">'+e.r2.toFixed(2)+'</td>';
+    h+='<td onmousemove="tip(event,\''+e.n+' month-over-month pairs used in the regression — more pairs mean a more stable estimate.\')" onmouseout="untip()">'+e.n+'</td>';
+    h+='<td onmousemove="tip(event,\''+full+'\')" onmouseout="untip()"><span class="tag '+readClass+'">'+read+'</span></td></tr>';
+  });
+  if(OVEL) h+='<tr style="background:rgba(240,185,11,.06)"><td><b>Overall (blended)</b></td><td onmousemove="tip(event,\''+elasticityRead(OVEL.b,OVEL.r2,OVEL.n)+'\')" onmouseout="untip()">'+OVEL.b.toFixed(2)+'</td><td>'+OVEL.r2.toFixed(2)+'</td><td>'+OVEL.n+'</td><td>portfolio signal</td></tr>';
+  h+='</tbody></table>';
+  document.getElementById("tEl").innerHTML=h;
+})();
+
+/* ============ COMPETITOR ============ */
+(function(){
+  var names=["Vega","Alpha","Giga","Kalna","Omega","Rimon","Nexa"];
+  var colors=["#ff5c7a","#a78bfa","#22c3aa","#ff8a3d","#2fd181","#8fa0c4","#f0b90b"];
+  var series=names.map(function(n,i){return {name:n,data:D.compTrend[n],w:n==="Nexa"?3.5:1.6};});
+  lineChart(document.getElementById("compTrend"),series,D.compMonths,{yfmt:fmtMT,ytitle:"Tk / MT",colors:colors});
+  var nxs=D.comp.find(function(c){return c[0]==="Nexa Steel";})[1];
+  var sorted=D.comp.slice().sort(function(a,b){return b[1]-a[1];});
+  var html='<table><thead><tr><th>#</th><th>Competitor</th><th>Mill rate (Tk/MT)</th><th>Landing rate</th><th>Market offer</th><th>vs Nexa</th></tr></thead><tbody>';
+  sorted.forEach(function(c,i){
+    var diff=c[1]-nxs;
+    html+='<tr'+(c[0]==="Nexa Steel"?' style="background:rgba(240,185,11,.08)"':'')+'>';
+    html+='<td>'+(i+1)+'</td><td><b>'+c[0]+'</b></td><td>'+taka(c[1])+'</td><td>'+taka(c[2])+'</td><td>'+taka(c[3])+'</td>';
+    html+='<td class="'+(diff>=0?"pos":"neg")+'">'+(diff>=0?"+":"")+taka(diff)+'</td></tr>';
+  });
+  html+='</tbody></table><div class="small" style="margin-top:8px">Nexa ranks 7th of 25; ~Tk 5,900/MT below the premium leaders (Alpha/Vega). Average over May-2024 → Jan-2025 survey.</div>';
+  document.getElementById("compTable").innerHTML=html;
+})();
+
+/* ============ MARKET SHARE ============ */
+(function(){
+  var k=[
+    {l:"Share FY2023-24",v:"2.06%",n:mt(119202)+" MT · rank 7"},
+    {l:"Share FY2024-25",v:"2.59%",n:mt(145051)+" MT · +21.7% YoY",c:"up"},
+    {l:"Market leader",v:"Vega 27.58%",n:"Alpha 17.6% · Giga 12.2%"},
+    {l:"Latest (Sep'26)",v:"2.92%",n:mt(12523)+" MT"}
+  ];
+  document.getElementById("msKpis").innerHTML=k.map(function(x){
+    return '<div class="card kpi"><div class="lab">'+x.l+'</div><div class="val">'+x.v+'</div><div class="note '+(x.c||"")+'">'+x.n+'</div></div>';}).join("");
+  var msSorted=D.ms.slice().sort(function(a,b){return b[2]-a[2];});
+  groupedBar(document.getElementById("msLadder"),msSorted.map(function(m){return m[0];}),[
+    {name:"FY2023-24 share %",data:msSorted.map(function(m){return m[1];})},
+    {name:"FY2024-25 share %",data:msSorted.map(function(m){return m[2];})}
+  ],{yfmt:function(v){return v.toFixed(0)+"%";},colors:["#3b4f8a","#f0b90b"]});
+  lineChart(document.getElementById("msTrend"),[{name:"Nexa Steel share %",data:D.msNexaShare,w:2.4}],D.msMonths,{yfmt:function(v){return v.toFixed(1)+"%";},ytitle:"Share %",colors:["#f0b90b"]});
+  var th='<table><thead><tr><th>Company</th><th>FY2023-24 Share</th><th>FY2023-24 Sales (MT)</th><th>FY2024-25 Share</th><th>FY2024-25 Sales (MT)</th><th>YoY</th></tr></thead><tbody>';
+  msSorted.forEach(function(m){
+    var g=(m[2]-m[1])/m[1]*100;
+    th+='<tr'+(m[0]==="Nexa Steel"?' style="background:rgba(240,185,11,.08)"':'')+'>';
+    th+='<td><b>'+m[0]+'</b></td><td>'+m[1].toFixed(2)+'%</td><td>'+mt(m[3])+'</td><td><b>'+m[2].toFixed(2)+'%</b></td><td>'+mt(m[4])+'</td>';
+    th+='<td class="'+(g>=0?"pos":"neg")+'">'+(g>=0?"+":"")+g.toFixed(1)+'%</td></tr>';
+  });
+  th+='</tbody></table><div class="small" style="margin-top:8px">Total steel market ~5.6M MT/yr. Nexa Steel is the fastest-growing named mill (+21.7% vs Vega +12.4%, Alpha +20.6%), gaining share 2.06% → 2.59% while Omega Steels fell −46.8%.</div>';
+  document.getElementById("msTable").innerHTML=th;
+})();
+
+/* ============ DEALER ============ */
+(function(){
+  var total=0; D.commType.forEach(function(c){total+=c[1];});
+  var m25=0; D.comm.forEach(function(c){if((c[1]>=7?c[0]:c[0]-1)===2025)m25+=c[2];});
+  var k=[
+    {l:"Total commission (2023–26)",v:cr(total),n:"dealer incentive paid"},
+    {l:"FY2025-26 commission",v:cr(m25),n:"~"+(m25/D.yearlyRev[2025]*100).toFixed(1)+"% of FY25-26 sales"},
+    {l:"Incentive types",v:"12",n:"Monthly, Performance, Target, Delivery…"},
+    {l:"Largest type",v:"Monthly",n:cr(437049170)+" · 66% of total"}
+  ];
+  document.getElementById("commKpis").innerHTML=k.map(function(x){
+    return '<div class="card kpi"><div class="lab">'+x.l+'</div><div class="val">'+x.v+'</div><div class="note">'+x.n+'</div></div>';}).join("");
+  var months=D.monthly;
+  var labels=months.map(function(m){return mn(m[1])+"'"+String(m[0]).slice(2);});
+  var cmap={}; D.comm.forEach(function(c){cmap[c[0]+"-"+c[1]]=c[2];});
+  var comm=months.map(function(m){return cmap[m[0]+"-"+m[1]]||0;});
+  dualLineChart(document.getElementById("commMonthly"),
+    {name:"Dealer commission (Tk)",data:comm},
+    {name:"Net sales (Tk)",data:months.map(function(m){return m[2];})},
+    labels,{yfmt:fmtY,y2fmt:fmtY,ytitle:"Commission (Tk)",y2title:"Net sales (Tk)",c1:"#22c3aa",c2:"#2f7dff"});
+  barChart(document.getElementById("commType"),D.commType.slice().sort(function(a,b){return b[1]-a[1];}).map(function(c){return {label:c[0],value:c[1],color:"#22c3aa"};}),{fmt:cr});
+})();
+
+/* ============ AREA ============ */
+(function(){
+  barChart(document.getElementById("zoneBar"),D.zones.slice(0,12).map(function(z){return {label:z[0],value:z[1],color:"#2f7dff"};}),{fmt:cr});
+  var tot=D.zones.reduce(function(a,z){return a+z[1];},0);
+  var html='<table><thead><tr><th>Zone</th><th>Value</th><th>Volume (MT)</th><th>Share of total</th></tr></thead><tbody>';
+  D.zones.forEach(function(z){ html+='<tr><td><b>'+z[0]+'</b></td><td>'+cr(z[1])+'</td><td>'+mt(z[2])+'</td><td>'+(z[1]/tot*100).toFixed(1)+'%</td></tr>'; });
+  html+='</tbody></table>';
+  document.getElementById("zoneTable").innerHTML=html;
+})();
+
+/* ============ GROWTH ============ */
+(function(){
+  var y23=D.yearlyRev[2023],y24=D.yearlyRev[2024],y25=D.yearlyRev[2025],y26=D.yearlyRev[2026];
+  var v23=D.yearlyDel[2023][0],v24=D.yearlyDel[2024][0],v25=D.yearlyDel[2025][0];
+  var k=[
+    {l:"FY2023-24",v:cr(y23),n:mt(v23)+" deliveries"},
+    {l:"FY2024-25",v:cr(y24),n:pf(pct(y24,y23))+" · "+mt(v24)+" deliveries",c:pct(y24,y23)>=0?"up":"down"},
+    {l:"FY2025-26",v:cr(y25),n:pf(pct(y25,y24))+" · "+mt(v25)+" deliveries",c:pct(y25,y24)>=0?"up":"down"},
+    {l:"FY2026-27 (5 mo)",v:cr(y26),n:"Jul–Nov 2026 · partial year",c:"up"},
+    {l:"2-yr CAGR",v:(((y25/y23)**0.5-1)*100).toFixed(1)+"%",n:"FY23-24 → FY25-26"}
+  ];
+  document.getElementById("growthKpis").innerHTML=k.map(function(x){
+    return '<div class="card kpi"><div class="lab">'+x.l+'</div><div class="val">'+x.v+'</div><div class="note '+(x.c||"")+'">'+x.n+'</div></div>';}).join("");
+  groupedBar(document.getElementById("revYear"),["FY2023-24","FY2024-25","FY2025-26"],[
+    {name:"Net sales (Tk)",data:[y23,y24,y25]}
+  ],{yfmt:fmtY,colors:["#2f7dff"]});
+  document.getElementById("revYear").insertAdjacentHTML("beforeend",
+    '<div class="small" style="margin-top:6px">Deliveries (fiscal-year activity proxy): FY23-24 '+mt(v23)+' → FY24-25 '+mt(v24)+' → FY25-26 '+mt(v25)+'. MT volume omitted — ERP quantity is mixed-unit (kg/MT) for rebar.</div>');
+})();
+
+/* ============ DIRECTION · DECISION · ACTION ============ */
+(function(){
+  var y23=D.yearlyRev[2023],y24=D.yearlyRev[2024],y25=D.yearlyRev[2025],y26=D.yearlyRev[2026];
+  var nxsMs=D.ms.filter(function(m){return m[0]==="Nexa Steel";})[0];
+  var share23=nxsMs[1], share24=nxsMs[2];
+  var lastShare=D.msNexaShare[D.msNexaShare.length-1], peakShare=Math.max.apply(null,D.msNexaShare);
+  function readB(b){ return b==null?"not measurable":(b>0?"anomalous":(b<-1?"elastic":"inelastic")); }
+
+  /* ---- 1. DIRECTION ---- */
+  document.getElementById("ddaDirExpl").innerHTML=
+    '<ul style="margin:4px 0 0">'+
+    '<li><b>S</b> — Clear growth phase: net revenue rose <b>৳927 Cr → ৳1,604 Cr</b> from FY23-24 to FY25-26.</li>'+
+    '<li><b>M</b> — <b>+28%</b> latest-year growth and a <b>+32%</b> 2-year CAGR; FY26-27 already <b>৳488 Cr</b> in 5 months (Jul–Nov).</li>'+
+    '<li><b>A</b> — Matching or beating FY25-26 (৳1,604 Cr) in FY26-27 is achievable if the quarter-start dips are closed.</li>'+
+    '<li><b>R</b> — Growth is volume- and share-led at a stable mill rate — the core engine is healthy.</li>'+
+    '<li><b>T</b> — Steel share climbed <b>2.06% → 2.59%</b> (peak <b>3.49%</b> in Mar\u201926); FY26-27 closes June 2027.</li></ul>';
+  var dirHtml='<table><thead><tr><th>FY</th><th>Net revenue</th><th>YoY</th><th>Steel share</th><th>Note</th></tr></thead><tbody>';
+  dirHtml+='<tr><td>FY2023-24</td><td>'+cr(y23)+'</td><td>—</td><td>'+share23.toFixed(2)+'%</td><td>baseline</td></tr>';
+  dirHtml+='<tr><td>FY2024-25</td><td>'+cr(y24)+'</td><td class="pos">'+pf(pct(y24,y23))+'</td><td>'+share24.toFixed(2)+'%</td><td>share +0.5 pp</td></tr>';
+  dirHtml+='<tr><td>FY2025-26</td><td>'+cr(y25)+'</td><td class="pos">'+pf(pct(y25,y24))+'</td><td>—</td><td>fastest growth</td></tr>';
+  dirHtml+='<tr><td>FY2026-27 (5 mo, Jul–Nov)</td><td>'+cr(y26)+'</td><td>in progress</td><td>'+lastShare.toFixed(2)+'% (Sep 26)</td><td>partial year</td></tr>';
+  dirHtml+='</tbody></table>';
+  document.getElementById("ddaDirTable").innerHTML=dirHtml;
+  var mlab=D.monthly.map(function(m){return mn(m[1])+String(m[0]).slice(2);});
+  var mrev=D.monthly.map(function(m){return m[2];});
+  lineChart(document.getElementById("ddaDirChart"),[{name:"Monthly net revenue",data:mrev,w:2.2}],mlab,{yfmt:fmtY,ytitle:"Net revenue",tipfmt:cr,colors:["#2f7dff"]});
+
+  /* ---- 2. DECISION ---- */
+  document.getElementById("ddaDecExpl").innerHTML=
+    'Three choices follow from the data. <ul>'+
+    '<li><b>Price with the mill rate, not against it.</b> The mainstream B500 10/12/16/20 mm carry only ~5% gross margin and several read elastic, so cost-plus discipline matters more than headline price.</li>'+
+    '<li><b>Concentrate the portfolio.</b> B500 grades are ~94% of revenue and the top four SKUs (10/16/12/20 mm) are ~82% — focus planning, inventory and sales effort there.</li>'+
+    '<li><b>Protect the margin-rich niche.</b> 8 mm, 32 mm and the B420 grades earn 10–16% gross margin on small volume — grow them selectively rather than letting them drift.</li></ul>';
+  var skuMeta={}; D.sku.forEach(function(s){ skuMeta[s[0].replace("Nexa Steel ","")]={fy25:s[4],grade:s[1]}; });
+  var skuGp={}; D.price25.forEach(function(p){ skuGp[p[0].replace("Nexa Steel ","")]={gp:(p[2]-p[3])/p[2]*100}; });
+  var top8=SKUKEYS.map(function(k){ return {k:k, rev:skuMeta[k]?skuMeta[k].fy25:0, gp:skuGp[k]?skuGp[k].gp:0, b:EL[k]?EL[k].b:null}; })
+    .sort(function(a,b){return b.rev-a.rev;}).slice(0,8);
+  var decHtml='<table><thead><tr><th>SKU</th><th>FY25-26 rev</th><th>GP%</th><th>β</th><th>Read</th></tr></thead><tbody>';
+  top8.forEach(function(s){
+    decHtml+='<tr><td><b>'+esc(s.k)+'</b></td><td>'+cr(s.rev)+'</td><td class="'+(s.gp>=10?"pos":"")+'">'+s.gp.toFixed(1)+'%</td><td>'+(s.b==null?"—":s.b.toFixed(2))+'</td><td>'+readB(s.b)+'</td></tr>';
+  });
+  decHtml+='</tbody></table>';
+  document.getElementById("ddaDecTable").innerHTML=decHtml;
+  var decItems=top8.map(function(s){
+    var col=s.gp>=10?"#f0b90b":(s.gp>=6?"#22c3aa":"#2f7dff");
+    return {label:s.k,value:s.rev,color:col};
+  });
+  barChart(document.getElementById("ddaDecChart"),decItems,{fmt:cr});
+
+  /* ---- 3. ACTION ---- */
+  document.getElementById("ddaActExpl").innerHTML=
+    'Five concrete moves, each tied to a number. <ul>'+
+    '<li><b>Defend the top four SKUs and top five zones</b> — they drive most of the revenue.</li>'+
+    '<li><b>Hold the mill rate</b> (now ৳89,900) and pass scrap-cost changes through selectively, since the portfolio is inelastic on balance.</li>'+
+    '<li><b>Revalidate the GP cost basis</b> — gross margin rests on a point-in-time average cost.</li>'+
+    '<li><b>Target 3.5% monthly share</b> — already hit once (March 2026) — as the next threshold.</li>'+
+    '<li><b>Review the B420 tail</b> (~5% of revenue) for consolidation or re-pricing.</li></ul>';
+  var actRows=[
+    [1,"Defend top 4 SKUs (10/16/12/20 mm)","82% of revenue (৳1,266 Cr)","High","Secures core volume"],
+    [2,"Hold mill rate, pass scrap through selectively","portfolio inelastic on balance · rate ৳89,900","High","Revenue without volume loss"],
+    [3,"Grow top 5 zones","Cumilla, Noakhali, Mirpur, Gazipur, Daudkandi","High","Deepens fastest regions"],
+    [4,"Revalidate GP cost basis","GP% rests on point-in-time avg cost","Medium","Accurate margin view"],
+    [5,"Target 3.5% monthly share","peaked 3.49% in March 2026","Medium","Next share milestone"],
+    [6,"Review B420 tail","~7% of revenue, mixed margin","Low","Simpler portfolio"]
+  ];
+  var actHtml='<table><thead><tr><th>#</th><th>Action</th><th>Basis (data)</th><th>Priority</th><th>Impact</th></tr></thead><tbody>';
+  actRows.forEach(function(r){
+    var pc=r[3]==="High"?"pri-hi":(r[3]==="Medium"?"pri-md":"pri-lo");
+    actHtml+='<tr><td>'+r[0]+'</td><td><b>'+r[1]+'</b></td><td>'+r[2]+'</td><td class="'+pc+'">'+r[3]+'</td><td>'+r[4]+'</td></tr>';
+  });
+  actHtml+='</tbody></table>';
+  document.getElementById("ddaActTable").innerHTML=actHtml;
+  lineChart(document.getElementById("ddaActChart"),[
+    {name:"Nexa monthly share",data:D.msNexaShare,w:2.4},
+    {name:"3.5% target",data:D.msNexaShare.map(function(){return 3.5;}),w:1.4,dash:"6,5"}
+  ],D.msMonths,{yfmt:function(v){return v.toFixed(1)+"%";},ytitle:"Share %",colors:["#f0b90b","#ff5c7a"],tipfmt:function(v){return v.toFixed(2)+"%";}});
+
+  /* ---- 4. LOSS-MAKING / AT-RISK SKUs ---- */
+  var lossRows=D.price25.map(function(p){
+    var name=p[0], short=name.replace("Nexa Steel ","");
+    var net=p[2], cost=p[3];
+    var gp=(net-cost)/net*100, np=gp-2.1;
+    var skuRow=D.sku.filter(function(s){return s[0]===name;})[0];
+    var rev=skuRow?skuRow[4]:0;
+    var b=EL[short]?EL[short].b:null;
+    return {k:short, gp:gp, np:np, rev:rev, b:b};
+  }).sort(function(a,b){return a.np-b.np;});
+  var lossSkus=lossRows.filter(function(r){return r.np<4;});
+  var lossRev=lossSkus.reduce(function(a,r){return a+r.rev;},0);
+  var msRod25=D.cat["MS Rod"][2025];
+  document.getElementById("ddaLossExpl").innerHTML=
+    'Six core grades — B500 10/12/16/20/25 mm and B420 10 mm — are the volume engine (<b>'+Math.round(lossRev/msRod25*100)+'% of MS-Rod revenue</b>) but earn the thinnest net margin (<b>~3%</b> after commission &amp; freight). Their cost is drifting up with scrap, so they sit one raw-material spike away from an actual loss. <ul>'+
+    '<li><b>Direction:</b> margin on the core is compressing — volume is safe, profit is not.</li>'+
+    '<li><b>Decision:</b> hold the mill rate (these grades are elastic — price cuts recover nothing, hikes leak volume). Attack the cost base instead.</li>'+
+    '<li><b>Action:</b> re-price B500 20 mm (the thinnest), push the 9–14% NP grades (8/32 mm, B420 12–25 mm), and renegotiate the ~1.3% dealer commission.</li></ul>';
+  var lossItems=lossRows.map(function(r){
+    var col=r.np<4?"#ff5c7a":(r.np<8?"#f0b90b":"#2fd181");
+    return {label:r.k, value:r.np, color:col};
+  });
+  barChart(document.getElementById("ddaLossChart"),lossItems,{fmt:function(v){return v.toFixed(1)+"%";}});
+  var lh='<table><thead><tr><th>SKU</th><th>FY25-26 rev</th><th>GP%</th><th>Est NP%</th><th>β</th><th>Read</th></tr></thead><tbody>';
+  lossRows.forEach(function(r){
+    lh+='<tr'+(r.np<4?' style="background:rgba(255,92,122,.06)"':'')+'><td><b>'+esc(r.k)+'</b></td><td>'+cr(r.rev)+'</td><td>'+r.gp.toFixed(1)+'%</td><td class="'+(r.np<4?"neg":"pos")+'"><b>'+r.np.toFixed(1)+'%</b></td><td>'+(r.b==null?"—":r.b.toFixed(2))+'</td><td>'+(r.np<4?"at-risk":"healthy")+'</td></tr>';
+  });
+  lh+='</tbody></table>';
+  document.getElementById("ddaLossTable").innerHTML=lh;
+
+  /* ---- 5. LOSS RECOVERY PLAN ---- */
+  function revYm(y,m){ for(var i=0;i<D.monthly.length;i++){ if(D.monthly[i][0]===y && D.monthly[i][1]===m) return D.monthly[i][2]; } return 0; }
+  var j25=revYm(2025,7),j26=revYm(2026,7),o25=revYm(2025,10),o26=revYm(2026,10);
+  var julPct=(j26-j25)/j25*100, octPct=(o26-o25)/o25*100;
+  var julCr=(j26-j25)/1e7, octCr=(o26-o25)/1e7;
+  var q1y26=(revYm(2026,7)+revYm(2026,8)+revYm(2026,9))/1e7;
+  var q1y25=(revYm(2025,7)+revYm(2025,8)+revYm(2025,9))/1e7;
+  var sharePeak=Math.max.apply(null,D.msNexaShare), shareLatest=D.msNexaShare[D.msNexaShare.length-1];
+  var shareLoss=sharePeak-shareLatest;
+  var sh='<b style="color:var(--gold)">';
+  document.getElementById("ddaRecoveryExpl").innerHTML=
+    sh+'Diagnosis — where the loss is</b><p style="margin:3px 0 9px"><b>July 2026 fell '+julPct.toFixed(1)+'% YoY</b> (−৳'+Math.abs(julCr).toFixed(1)+' Cr) and <b>October 2026 fell '+octPct.toFixed(1)+'% YoY</b> (−৳'+Math.abs(octCr).toFixed(1)+' Cr). August (+34.7%) and September (+43.5%) over-recovered, so Q1 as a whole grew <b>+'+((q1y26-q1y25)/q1y25*100).toFixed(0)+'%</b> — the loss is a <b>quarter-start dip</b>, not a structural decline. Steel share slipped <b>'+sharePeak.toFixed(2)+'% (Mar\u201926) → '+shareLatest.toFixed(2)+'% (Sep\u201926)</b>, a loss of '+shareLoss.toFixed(2)+' points.</p>'+
+    sh+'Who took the share &amp; how</b><p style="margin:3px 0 9px">The big mills price above Nexa (Vega ~৳92.6k, Alpha ~৳92.9k, Giga ~৳92.6k vs Nexa ~৳86.7k in the survey). When Nexa\u2019s order flow dips at each quarter-start, <b>Vega (27.6% share), Alpha (17.6%) and Giga (12.2%)</b> absorb the shortfall through wider distribution and trade credit — Nexa leaks share exactly when its flow is thinnest.</p>'+
+    sh+'SMART recovery plan</b><ul style="margin:4px 0 9px">'+
+    '<li><b>S</b> — Smooth the quarter-starts: hold 4-week committed delivery schedules into July &amp; October. <b>M</b> — July &amp; October revenue back to ≥ ৳110 Cr each. <b>A</b> — already the norm in Aug/Sep. <b>R</b> — removes the single biggest loss. <b>T</b> — by next quarter close.</li>'+
+    '<li><b>S</b> — Recover share to 3.3%. <b>M</b> — +0.4 points from 2.92%. <b>A</b> — March 2026 already hit 3.49%. <b>T</b> — by FY26-27 year-end.</li>'+
+    '<li><b>S</b> — Defend core price discipline — no panic discounting (the core is elastic, β −2 to −7). <b>M</b> — realised price held at mill rate ±1%.</li>'+
+    '<li><b>S</b> — Shift mix to 8/32 mm &amp; B420 (9–14% NP) to offset the ~3% NP core. <b>M</b> — +5 points of revenue from these by Q3.</li>'+
+    '<li><b>S</b> — Renegotiate the \u2018Monthly\u2019 dealer commission (66% of pool, ~1.3% of sales). <b>M</b> — a 0.3-point cut ≈ +৳5 Cr/yr net profit.</li></ul>'+
+    sh+'Game theory — how competitors respond</b><ul style="margin:4px 0 9px">'+
+    '<li>Cut price → Vega/Alpha/Giga match (deeper pockets) → price war, no share gain, margin destroyed. <b>Do not.</b></li>'+
+    '<li>Hold price + better delivery &amp; credit → competitors lose the service lever; Nexa wins on reliability, no price war.</li>'+
+    '<li>Raise price on the elastic core → volume leaks (β −2 to −7). Raise only inelastic/anomalous grades.</li>'+
+    '<li><b>Equilibrium:</b> match on price, compete on delivery, credit terms and mix.</li></ul>'+
+    sh+'7P — where to focus</b><ul style="margin:4px 0 0">'+
+    '<li><b>Product:</b> push 8/32 mm &amp; B420 (high margin); keep B500 core for volume.</li>'+
+    '<li><b>Price:</b> hold the mill rate; pass scrap through selectively; no discounting the elastic core.</li>'+
+    '<li><b>Place:</b> defend Cumilla, Noakhali, Mirpur, Gazipur; deepen quarter-start coverage.</li>'+
+    '<li><b>Promotion:</b> outspent 3× in absolute terms (৳6.3 Cr vs Vega/Alpha ~৳20.5 Cr) but already leading on % of revenue (1.58%) — so fix reach, not just budget: shift outdoor→digital (45K vs Alpha 496K followers; Vega reaches 5× more online), add DSP/influencers, and convert our lowest-NSP edge into volume through demand-generation, not discounting.</li>'+
+    '<li><b>People:</b> sales KPIs on margin + share, not volume alone.</li>'+
+    '<li><b>Process:</b> smooth the quarter-end push into steady monthly flow.</li>'+
+    '<li><b>Physical evidence:</b> the published daily mill rate (Trade) builds trust vs competitors\u2019 opaque pricing.</li></ul>';
+  var mm=[7,8,9,10];
+  groupedBar(document.getElementById("ddaRecoveryChart"), mm.map(function(m){return mn(m);}), [
+    {name:"FY25-26",data:mm.map(function(m){return revYm(2025,m);})},
+    {name:"FY26-27",data:mm.map(function(m){return revYm(2026,m);})}
+  ],{yfmt:fmtY,colors:["#3b4f8a","#f0b90b"]});
+  var rt='<table><thead><tr><th>Month</th><th>FY25-26</th><th>FY26-27</th><th>YoY</th><th>Read</th></tr></thead><tbody>';
+  mm.forEach(function(m){
+    var a=revYm(2025,m), b=revYm(2026,m), p=(b-a)/a*100;
+    rt+='<tr><td><b>'+mn(m)+'\u201926</b></td><td>'+cr(a)+'</td><td>'+cr(b)+'</td><td class="'+(p>=0?"pos":"neg")+'"><b>'+pf(p)+'</b></td><td>'+(p<0?"loss":"gain")+'</td></tr>';
+  });
+  rt+='<tr style="background:rgba(240,185,11,.06)"><td><b>Share (Mar\u201926 → Sep\u201926)</b></td><td>'+sharePeak.toFixed(2)+'%</td><td>'+shareLatest.toFixed(2)+'%</td><td class="neg"><b>−'+shareLoss.toFixed(2)+' pp</b></td><td>share lost</td></tr>';
+  rt+='</tbody></table>';
+  document.getElementById("ddaRecoveryTable").innerHTML=rt;
+})();
+
+/* ============ chart synopses (bullet takeaways) ============ */
+(function(){
+  syn("cPort", [
+    "Net revenue climbed <b>৳927 Cr → ৳1,604 Cr</b> from FY23-24 to FY25-26.",
+    "Bars are lumpy month-to-month — rebar demand is project-driven, not steady.",
+    "The teal line shows nearly every tracked grade sells each month (broad activity)."
+  ]);
+  syn("cBreadth", [
+    "Green = SKUs that raised price vs the prior month; red = SKUs that cut.",
+    "Bars swing together — the scrap-driven mill rate moves every grade at once.",
+    "Broad green = cost push; broad red = cost relief passing through."
+  ]);
+  syn("cJourney", [
+    "Most SKUs end the window priced above where they started.",
+    "The B500 core sizes moved together — they follow the mill rate, not individual demand."
+  ]);
+  syn("cThreePrice", [
+    "Net (solid blue) and Gross (dashed gold) overlap almost exactly — ~0% trade discount.",
+    "MRP (teal) hugs the mill rate, so rebar has no meaningful DP/TP/MRP ladder.",
+    "All three lines move as one because rebar sells at the daily mill rate."
+  ]);
+  syn("netPriceChart", [
+    "Realised net price per MT, overall or by grade.",
+    "The overall line dips to ~৳69k (Dec'25) and recovers to ~৳90k with the Mar'26 scrap surge.",
+    "Use the selector to isolate one grade or overlay all."
+  ]);
+  syn("grossPriceChart", [
+    "Gross (list) price is essentially identical to net — Nexa discounts ~0%.",
+    "Only Jan'25 shows a small gap; otherwise the two lines coincide."
+  ]);
+  syn("mrpPriceChart", [
+    "MRP is the announced list price per MT.",
+    "It tracks the mill rate closely and is the ceiling reference for the trade rate."
+  ]);
+  syn("waterfall", [
+    "How a tonne of rebar breaks down: list ~৳83k → cost ~৳76k → gross profit ~৳7k (~8%).",
+    "After dealer commission & freight, net profit is roughly ~৳5k per MT.",
+    "The largest lever on profit is the raw-material (scrap) cost."
+  ]);
+  syn("gpnpTrend", [
+    "Realised price and scrap (raw-material) cost move together.",
+    "The gap between the lines is the melting+rolling margin — it narrows when scrap rises faster than the mill rate.",
+    "Gross profit is scrap-led, not demand-led."
+  ]);
+  syn("skuRevMonthly", [
+    "Monthly net revenue for a chosen SKU (or overall).",
+    "The B500 core sizes dominate the revenue mix."
+  ]);
+  syn("skuRank", [
+    "B500 DWR 10 mm is the biggest SKU (~34% of MS-Rod revenue).",
+    "The top four B500 sizes (10/16/12/20 mm) are ~82% of revenue.",
+    "B420 grades are the tail — roughly 5% combined."
+  ]);
+  syn("momChart", [
+    "One SKU's volume and realised price, month by month.",
+    "Where price and volume move together it is cost pass-through; opposite directions suggest demand.",
+    "Pick any grade from the selector, or click a row in the All SKUs table."
+  ]);
+  syn("cTradeTrend", [
+    "The declared Trade (mill) rate and the realised net price track each other.",
+    "The mill rate is updated almost daily and is the true sell-price anchor for rebar."
+  ]);
+  syn("cGap", [
+    "How far each SKU's latest realised price sits above (teal) or below (red) the Trade rate.",
+    "Most grades trade ~1% below the mill rate — a normal, tight discount band."
+  ]);
+  syn("cEl", [
+    "Own-price elasticity: teal = elastic (β&lt;−1), red = anomalous (β&gt;0).",
+    "Elastic grades lose more volume than the price gain — hike cautiously.",
+    "Positive β is usually scrap pass-through, not demand — investigate before pricing on it."
+  ]);
+  syn("cScatter", [
+    "Each point is one SKU-month, centred on that SKU's own average price & volume.",
+    "Top-left = price up, volume down (normal); top-right = both up (pass-through).",
+    "The cloud's slope is the portfolio's overall elasticity signal."
+  ]);
+  syn("compTrend", [
+    "Nexa's mill rate vs top competitors, May'24–Jan'25.",
+    "Nexa prices mid-pack — below Vega/Alpha/Giga, above the smaller mills."
+  ]);
+  syn("msLadder", [
+    "Steel market share by mill, FY2023-24 vs FY2024-25.",
+    "Vega leads (~28%); Nexa is 7th at 2.06% → 2.59%.",
+    "Nexa is the fastest-rising named mill over the two years."
+  ]);
+  syn("msTrend", [
+    "Nexa's monthly steel share, Dec'25 → Sep'26.",
+    "Share hovers 2.6–3.5%, peaking at 3.49% in Mar'26.",
+    "Recent months settle around ~2.9%."
+  ]);
+  syn("commMonthly", [
+    "Dealer commission vs net sales, monthly.",
+    "Commission tracks sales — it is a variable cost that scales with revenue."
+  ]);
+  syn("commType", [
+    "Total dealer incentive split by type.",
+    "'Monthly' is two-thirds of the pool — the single biggest lever on the commission line."
+  ]);
+  syn("zoneBar", [
+    "Top delivery zones by cumulative value (FY2022-23 → FY2026-27, up to Oct '26).",
+    "Cumilla, Noakhali, Mirpur and Gazipur lead — the core demand geography."
+  ]);
+  syn("revYear", [
+    "Net revenue by fiscal year: ৳927 Cr → ৳1,253 Cr → ৳1,604 Cr.",
+    "Growth is +35% (FY24-25) then +28% (FY25-26) — a 2-year CAGR of ~32%.",
+    "FY26-27 is only 5 months in (৳488 Cr), so do not annualise it yet."
+  ]);
+  syn("ddaDirChart", [
+    "The full monthly revenue trajectory behind the Direction story.",
+    "A clear upward trend with strong seasonality — the growth is real, not a one-off."
+  ]);
+  syn("ddaDecChart", [
+    "Top SKUs by FY25-26 revenue, coloured by gross-margin tier.",
+    "The biggest SKUs are thin-margin (blue ~5% GP); smaller ones carry 10–16% GP (gold).",
+    "This is the concentration-vs-margin trade-off the Decision block discusses."
+  ]);
+  syn("ddaActChart", [
+    "Monthly steel share with a dashed 3.5% target line.",
+    "3.5% is the next milestone — already reached once in Mar'26."
+  ]);
+  syn("ddaLossChart", [
+    "Six core grades carry ~88% of revenue but only ~3% net margin (red bars).",
+    "They are one scrap-cost spike away from an actual loss.",
+    "Hold price and fix cost — scrap sourcing, mix shift and the dealer commission."
+  ]);
+  syn("ddaRecoveryChart", [
+    "July and October are the loss months (down vs FY25-26); August and September over-recover.",
+    "The dip is a quarter-start timing effect, not a structural decline.",
+    "Recovery = smooth the quarter-starts and win back share in the thin months."
+  ]);
+})();
+
+/* ============ PROMOTION ============ */
+(function(){
+  var social=[
+    {label:"Alpha",value:496,color:"#3b4f8a"},
+    {label:"Vega",value:316,color:"#3b4f8a"},
+    {label:"Giga Metals",value:290,color:"#3b4f8a"},
+    {label:"Kalna",value:200,color:"#3b4f8a"},
+    {label:"Omega Steels",value:196,color:"#3b4f8a"},
+    {label:"Rimon Steels",value:59,color:"#3b4f8a"},
+    {label:"Nexa Steel (us)",value:45,color:"#f0b90b"}
+  ];
+  barChart(document.getElementById("promoSocial"), social, {fmt:function(v){return v+"K";}});
+
+  var incent=[
+    {label:"Omega Steels",value:5000,color:"#3b4f8a"},
+    {label:"Giga Metals",value:4000,color:"#3b4f8a"},
+    {label:"Nexa Steel (us)",value:4000,color:"#f0b90b"},
+    {label:"Vega",value:3920,color:"#3b4f8a"},
+    {label:"Alpha",value:3350,color:"#3b4f8a"},
+    {label:"Rimon Steels",value:500,color:"#3b4f8a"},
+    {label:"Kalna",value:450,color:"#3b4f8a"}
+  ];
+  barChart(document.getElementById("promoIncentive"), incent, {fmt:function(v){return "৳"+v.toLocaleString("en-US")+"/MT";}});
+
+  var ct='<table><thead><tr><th>Brand</th><th>FB followers</th><th>Ex-mill (Tk)</th><th>NSP (Tk)</th><th>Share FY26</th></tr></thead><tbody>';
+  ct+='<tr><td><b>Vega</b></td><td>316K</td><td>96,000</td><td>92,080</td><td>27.7%</td></tr>';
+  ct+='<tr><td><b>Alpha</b></td><td>496K</td><td>94,600</td><td>91,250</td><td>18.1%</td></tr>';
+  ct+='<tr><td><b>Giga Metals</b></td><td>290K</td><td>95,000</td><td>91,000</td><td>9.3%</td></tr>';
+  ct+='<tr><td><b>Kalna</b></td><td>200K</td><td>91,100</td><td>90,650</td><td>7.1%</td></tr>';
+  ct+='<tr><td><b>Omega Steels</b></td><td>196K</td><td>94,500</td><td>89,500</td><td>3.0%</td></tr>';
+  ct+='<tr><td><b>Rimon Steels</b></td><td>59K</td><td>90,500</td><td>90,000</td><td>3.7%</td></tr>';
+  ct+='<tr style="background:rgba(240,185,11,.06)"><td><b>Nexa Steel</b></td><td>45K</td><td>93,000</td><td>89,000</td><td>2.9%</td></tr>';
+  ct+='</tbody></table>';
+  document.getElementById("promoCompTable").innerHTML=ct;
+
+  var gap='<ul style="margin:0;padding-left:18px;line-height:1.6;color:#c9d7ea">'+
+    '<li><b style="color:var(--gold)">Outspent 3× in absolute terms.</b> We spend ৳6.28 Cr vs Vega/Alpha ~৳20.5 Cr (Dec\u201925–Feb\u201926) — but we already lead on % of revenue (1.58% vs their 0.7–0.9%). The gap is scale, not effort.</li>'+
+    '<li><b style="color:var(--gold)">Digital is the widest capability gap.</b> 45K followers vs Alpha 496K (11×) and Vega 316K (7×); Vega reaches 5× more people online and runs DSP + influencers we have not activated.</li>'+
+    '<li><b style="color:var(--gold)">Lowest-priced but not converting to share.</b> NSP ৳89,000 (lowest of the majors) yet share is stuck at 2.9% — the price edge leaks margin without pulling volume.</li>'+
+    '<li><b style="color:var(--gold)">Sharpest message, thinnest reach.</b> Our "12% stronger" USP is concrete vs competitors\u2019 "No.1" claims — but it is under-distributed.</li>'+
+    '<li><b style="color:var(--gold)">What to fix:</b> (1) redirect outdoor → digital + social and activate DSP/influencers to close the reach gap; (2) protect spend during the share-gain phase; (3) tie trade incentives to quarterly/annual targets; (4) convert the price edge into volume via engineer-loyalty &amp; demand-generation, not discounting.</li>'+
+    '</ul>';
+  document.getElementById("promoGap").innerHTML=gap;
+
+  // competitor offline campaigns (Jan–Apr'26)
+  var cp='<table><thead><tr><th>Company</th><th>Campaign</th><th>Type</th><th>Spend</th><th>Objective</th></tr></thead><tbody>';
+  cp+='<tr style="background:rgba(240,185,11,.06)"><td><b>Nexa Steel</b></td><td>"12% Stronger than Good Quality TMT Bars"</td><td>360 (ATL+BTL+Digital+OOH)</td><td>৳5.58 Cr</td><td>Brand awareness</td></tr>';
+  cp+='<tr><td><b>Vega</b></td><td>"বাংলাদেশ এর নাম্বার ওয়ান স্টিল"</td><td>360 (ATL+BTL+Digital)</td><td>—</td><td>Retention</td></tr>';
+  cp+='<tr><td><b>Giga Metals</b></td><td>"দৃঢ়তায় ১ নাম্বার"</td><td>Digital</td><td>৳1.2 Cr</td><td>TOF — B600 DWR launch</td></tr>';
+  cp+='<tr><td><b>Alpha</b></td><td>"সর্বোচ্চ মানসম্পন্ন স্টিল"</td><td>Digital</td><td>৳0.3–0.5 Cr</td><td>Engagement</td></tr>';
+  cp+='<tr><td><b>Omega Steels</b></td><td>"Strongest Steel Since 1978"</td><td>360 (BTL+Digital)</td><td>৳5.5–8 Cr</td><td>Brand positioning</td></tr>';
+  cp+='</tbody></table>';
+  document.getElementById("promoCampaign").innerHTML=cp;
+
+  // digital spend (Dec'25–Feb'26)
+  var dig=[
+    {label:"Vega",value:1.50,color:"#3b4f8a"},
+    {label:"Giga Metals",value:0.50,color:"#3b4f8a"},
+    {label:"Alpha",value:0.40,color:"#3b4f8a"},
+    {label:"Nexa Steel (us)",value:0.28,color:"#f0b90b"},
+    {label:"Kalna",value:0.20,color:"#3b4f8a"},
+    {label:"Omega",value:0.15,color:"#3b4f8a"}
+  ];
+  barChart(document.getElementById("promoDigital"), dig, {fmt:function(v){return "৳"+v.toFixed(2)+" Cr";}});
+
+  // total spend vs revenue contribution (Dec'25–Feb'26)
+  var st='<table><thead><tr><th>Company</th><th>Total spend (Cr)</th><th>Revenue (Cr)</th><th>Offline %</th><th>Digital %</th><th>Total %</th></tr></thead><tbody>';
+  st+='<tr style="background:rgba(240,185,11,.06)"><td><b>Nexa Steel</b></td><td><b>৳6.28</b></td><td>397</td><td>1.51%</td><td>0.07%</td><td><b>1.58%</b></td></tr>';
+  st+='<tr><td><b>Vega</b></td><td>৳20.50</td><td>3,114</td><td>0.61%</td><td>0.05%</td><td>0.66%</td></tr>';
+  st+='<tr><td><b>Alpha</b></td><td>৳20.40</td><td>2,293</td><td>0.87%</td><td>0.02%</td><td>0.89%</td></tr>';
+  st+='<tr><td><b>Giga Metals</b></td><td>৳12.50</td><td>1,353</td><td>0.89%</td><td>0.04%</td><td>0.93%</td></tr>';
+  st+='<tr><td><b>Kalna</b></td><td>৳6.40</td><td>788</td><td>0.79%</td><td>0.03%</td><td>0.82%</td></tr>';
+  st+='<tr><td><b>Omega</b></td><td>৳4.15</td><td>338</td><td>1.19%</td><td>0.04%</td><td>1.23%</td></tr>';
+  st+='</tbody></table>';
+  document.getElementById("promoSpendTable").innerHTML=st;
+
+  syn("promoCampaign", [
+    "Nexa's \"12% stronger\" USP campaign is the most concrete, product-led message in the set.",
+    "Competitors default to leadership claims (\"No.1\", \"strongest\") — a gap we can exploit with proof-based positioning.",
+    "Omega is the biggest offline spender (৳5.5–8 Cr); Giga is launching a new grade (B600 DWR)."
+  ]);
+  syn("promoDigital", [
+    "Vega outspends us 5× on digital (৳1.50 Cr vs ৳0.28 Cr) and reaches 5× more people (88M vs 16M).",
+    "Vega also runs DSP, website and influencers — channels we have not activated.",
+    "Our ৳0.28 Cr buys 164M impressions — efficient, but too small to move share."
+  ]);
+  syn("promoSpendTable", [
+    "Nexa spends the most as a % of revenue (1.58%) — but the least in absolute terms (৳6.28 Cr vs Vega/Alpha ~৳20.5 Cr).",
+    "The gap is scale, not effort: our small revenue base caps absolute spend.",
+    "So the lever is efficiency + share growth, not simply spending more."
+  ]);
+  syn("promoSocial", [
+    "Nexa Steel has 45K Facebook followers — the lowest of every tracked mill.",
+    "Alpha (496K), Vega (316K) and Giga (290K) out-reach us 7–11× on owned digital.",
+    "Digital is our single widest competitive gap and the cheapest channel to fix."
+  ]);
+  syn("promoIncentive", [
+    "Omega leads trade incentives at ৳5,000/MT; Nexa and Giga tie at ৳4,000/MT.",
+    "Our incentives are mid-pack but structured around monthly, not quarterly, targets.",
+    "Re-timing incentives to quarterly targets can smooth the quarter-start revenue dip."
+  ]);
+})();
+
+/* ============ WHERE TO PLAY · WHOM TO PLAY · HOW TO WIN ============ */
+(function(){
+  var regions=[
+    {name:"Dhaka", loss:71.94, rev:79.79, mt:9080, q4:1.52, q1:1.46, d:0.060},
+    {name:"Chattogram", loss:4.23, rev:52.75, mt:5995, q4:1.01, q1:0.96, d:0.040},
+    {name:"Barishal", loss:1.15, rev:3.40, mt:385, q4:0.06, q1:0.06, d:0.003},
+    {name:"Khulna", loss:0.73, rev:7.68, mt:867, q4:0.15, q1:0.14, d:0.010},
+    {name:"Rajshahi", loss:0.39, rev:9.45, mt:1072, q4:0.18, q1:0.17, d:0.010},
+    {name:"Rangpur", loss:0.26, rev:1.26, mt:141, q4:0.02, q1:0.02, d:0.001},
+    {name:"Mymensingh", loss:0.10, rev:5.55, mt:628, q4:0.11, q1:0.10, d:0.005}
+  ];
+  // log-scale horizontal bars so every division is readable (Dhaka dwarfs the rest on a linear scale)
+  (function(){
+    var items=regions.map(function(r){return {label:r.name,value:r.loss};});
+    var W=920,L=150,R=118,T=12,B=34,H=Math.max(280,items.length*34+44);
+    var svg=el("svg",{width:"100%",height:H,viewBox:"0 0 "+W+" "+H,preserveAspectRatio:"xMinYMin meet"});
+    var cont=document.getElementById("w2pRegionChart"); cont.innerHTML=""; cont.appendChild(svg);
+    var mn=Math.min.apply(null,items.map(function(i){return i.value;}));
+    var mx=Math.max.apply(null,items.map(function(i){return i.value;}));
+    var l0=Math.log10(mn), l1=Math.log10(mx);
+    var x0=L,x1=W-R,y0=T,y1=H-B;
+    function X(v){ return x0+(Math.log10(v)-l0)/(l1-l0)*(x1-x0); }
+    var bh=(y1-y0)/items.length;
+    [0.1,0.3,1,3,10,30,100].forEach(function(g){
+      if(g<mn||g>mx) return;
+      var gx=X(g);
+      svg.appendChild(el("line",{x1:gx,y1:y0,x2:gx,y2:y1,stroke:C.line,"stroke-width":1}));
+      svg.appendChild(txt(gx,y1+14,"৳"+g,{size:"11",fill:C.muted}));
+    });
+    svg.appendChild(el("line",{x1:x0,y1:y1,x2:x1,y2:y1,stroke:C.axis,"stroke-width":1}));
+    items.forEach(function(it,idx){
+      var yy=y0+idx*bh+4;
+      var bw=Math.max(3,X(it.value)-x0);
+      svg.appendChild(el("rect",{x:x0,y:yy,width:bw,height:bh-8,rx:3,fill:"#ff5c7a"}));
+      svg.appendChild(txt(x0-8,yy+bh/2-4,it.label,{anchor:"end",fill:C.muted,size:"13"}));
+      svg.appendChild(txt(X(it.value)+6,yy+bh/2-4,"−৳"+it.value.toFixed(2)+" Cr",{anchor:"start",fill:C.tx,size:"12.5"}));
+    });
+  })();
+
+  var rt='<table><thead><tr><th>Division</th><th>Loss (Cr)</th><th>Revenue (Cr)</th><th>Volume (MT)</th><th>Q4 to Q1 market share loss</th></tr></thead><tbody>';
+  regions.forEach(function(r){
+    rt+='<tr><td><b>'+r.name+'</b></td><td class="neg">−৳'+r.loss.toFixed(2)+'</td><td>৳'+r.rev.toFixed(2)+'</td><td>'+r.mt.toLocaleString("en-US")+'</td><td>'+r.q4.toFixed(2)+'% → '+r.q1.toFixed(2)+'% <span class="tag t-pos">−'+r.d.toFixed(3)+'%</span></td></tr>';
+  });
+  rt+='</tbody></table>';
+  document.getElementById("w2pRegionTable").innerHTML=rt;
+
+  document.getElementById("w2pWhereExpl").innerHTML=
+    '<b style="color:var(--gold)">Where the share went</b><ul style="margin:4px 0 0">'+
+    '<li>Overall share slipped <b>3.05% → 2.92%</b> (−0.13pp) from Q4 FY2025-26 (April-June) to Q1 FY 2026-27 (Jul-Sep) &amp; Oct.</li>'+
+    '<li><b>Dhaka</b> is the biggest loss: 1.52% → 1.46%, <b>−৳71.94 Cr</b> (~92% of the total revenue loss).</li>'+
+    '<li><b>Chattogram</b> is second: 1.01% → 0.96%, −৳4.23 Cr.</li>'+
+    '</ul>';
+  document.getElementById("w2pWhomExpl").innerHTML=
+    '<b style="color:var(--gold)">Who took it</b><ul style="margin:4px 0 0">'+
+    '<li>Our −0.13pp went to <b>Rani (+1.61pp)</b>, <b>Omega Steels (+0.87pp)</b> and <b>Kalna (+0.81pp)</b>.</li>'+
+    '<li>These are the same three mills that under-cut us on trade schemes in the lost divisions.</li>'+
+    '<li><b>Giga (−2.80pp)</b> lost more than we did — the competitive window is against the mid-tier mills (Rani / Omega / Kalna), not the leaders Vega / Alpha.</li>'+
+    '</ul>';
+  document.getElementById("w2pHowExpl").innerHTML=
+    '<b style="color:var(--gold)">SMART playbook</b><ul style="margin:4px 0 0">'+
+    '<li><b>S</b> — Defend Dhaka first: it is half our revenue (৳79.79 Cr) and 92% of the loss. <b>M</b> — recover Dhaka to ≥1.52% share. <b>A</b> — achievable; the loss is recent. <b>R</b> — closes the single biggest gap. <b>T</b> — by Q3.</li>'+
+    '<li><b>S</b> — Counter Rani in the divisions it took. <b>M</b> — match its trade scheme within 5%. <b>A</b> — schemes are our strongest lever. <b>T</b> — 30 days.</li>'+
+    '<li><b>S</b> — Match Kalna &amp; Omega dealer incentives in the divisions they took. <b>M</b> — dealer activation back to Q4 levels.</li>'+
+    '<li><b>S</b> — Re-point the engineer-loyalty program (৳1.1 Cr budgeted) at the lost divisions. <b>M</b> — +10 active engineers per lost division.</li>'+
+    '<li><b>S</b> — Hold price (we are already the lowest NSP) — win on service, delivery and schemes, not further discounting.</li></ul>';
+
+  syn("w2pRegionChart", [
+    "Dhaka is ~92% of the revenue loss (৳71.94 Cr) — a single-division problem.",
+    "Chattogram is the only other division above ৳1 Cr of loss.",
+    "Defending Dhaka closes almost the whole gap."
+  ]);
+})();
+
+/* ============ boot: deep link ============ */
+(function(){
+  var h=location.hash.slice(1);
+  if(TABS.indexOf(h)>=0) showTab(h);
+})();
+</script>
+</body>
+</html>
