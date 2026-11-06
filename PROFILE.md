@@ -1,36 +1,35 @@
-# Nexa Steel — Product Intelligence Cockpit
+# Nexa Steel — Product Intelligence Cockpit · Research Profile
 
-A self-contained, single-file analytics cockpit that turns three years of steel mill sales into an executive-ready read: realised net/gross/MRP price, SKU momentum, margin structure, competitor mill rates, market share, dealer commissions, regional growth and price elasticity.
+## 1. Abstract
+This artifact is a single-file, dependency-free analytics cockpit for a steel mill business unit selling rebar / MS rod. It embeds three years of order-line data as a JavaScript object and renders every figure as hand-authored inline SVG, so the whole analysis opens from the local filesystem with no server, build step, or charting library. The cockpit answers a connected set of questions — what is realised price doing, how does margin stack against cost, which SKUs are gaining or losing momentum, how the mill prices against competitors and where it sits in market share, how strongly volume responds to price, and what management should decide and do next. It composes descriptive, comparative and elasticity analytics with a strategy layer (Direction·Decision·Action and Where-to-Play) into one tabbed narrative. All values are synthetic and structurally faithful but factually fictional; the deliverable is the analytical *design*, not a real financial statement.
 
-## The problem it solves
-A steel business unit (rebar/MS rod) generates granular order-line data, but leadership had no fast way to see *what price is doing, where margin is leaking, which SKUs are gaining or losing momentum, and how we stack up against the market* without waiting on analyst reports. Decisions on pricing, promotions and share defence were being made on stale, fragmented numbers.
+## 2. Problem Framing
+A rebar mill produces granular, high-frequency order-line data but leadership rarely has a fast, trustworthy way to see what *price* is doing across SKUs, where *margin* leaks, which *products* are accelerating, and how the mill *positions* against peers — without waiting on analyst back-and-forth. Pricing, promotion and share-defence decisions were therefore made on stale, fragmented numbers. The cockpit exists to collapse that gap: one portable HTML file that a decision-maker can open, read section-by-section, and interrogate (sort, filter, drill, hover) without any tooling.
 
-## The solution approach
-One portable HTML file (no build, no server, no libraries) that embeds the entire dataset as a JS object and hand-rolls every chart as inline SVG. A tabbed narrative walks a reader from the overview down to per-SKU elasticity, with a "what this answers / how to read it" guide box on every section.
+## 3. Related Practice
+The views encode techniques working price analysts and category managers actually use: **price-band / realised-vs-list analysis** (net vs gross vs MRP), **breadth indicators** borrowed from market analysis (share of SKUs raising vs cutting price month-on-month), **margin waterfalls** (price→cost→GP→NP), **competitor price-survey ladders** and **share-of-market** rankings, **own-price elasticity** estimated from time-series, and a **loss-bridge / where-we-play** strategy structure for the management read-out. These are standard commercial-pricing and business-analysis frames rather than bespoke inventions; the contribution is packaging them into a single self-explaining artifact.
 
-## Key features
-- Overview, Price, GP/NP/Net margin, All-SKU, SKU month-on-month, Declared-price grid, Elasticity, Competitor, Market-share, Dealer, Area, Growth and Direction·Decision·Action tabs.
-- Net vs gross vs MRP price per SKU across a clean 23-month window, with declared (mill-rate) vs realised gap analysis.
-- Own-price elasticity computed live via log-log OLS (Δln volume on Δln price) with per-SKU β and R².
-- Competitor mill-rate survey ranking and multi-mill trend comparison.
-- Market-share progression, fastest/slowest SKU momentum, and revenue-bridge views.
-- Sortable, searchable tables with click-to-drill and a shared hover tooltip on every chart.
-- A built-in "sources, method & coverage" section documenting caveats (partial survey windows, derived volumes, mixed-unit exclusions).
+## 4. Methodology & Data Design
+Conceptually the dataset is a set of ERP order-line aggregates scoped to one business unit. Metric definitions:
+- **Realised net price/MT** = net invoice value ÷ quantity, after discounts.
+- **Gross price/MT** = order value ÷ quantity; **MRP** = announced list price field.
+- **Volume (MT)** in derived views = monthly net revenue ÷ realised net price (revenue and price are the anchors; quantity is reconstructed where units are unreliable).
+- **GP%** = (net price − average item cost) ÷ net price; **Estimated NP%** = GP% − ≈2.1% (dealer commission + freight proxy).
+- **MoM price move** = p[i]/p[i−1] − 1 versus the previous month *with sales*; flagged when |Δ| ≥ 2% under a 0.5–2 ratio guard that rejects unit/ERP typos.
+- **Elasticity β** = OLS slope of Δln(volume) on Δln(price) across consecutive clean months — β = (nΣxy − Σx·Σy)/(nΣx² − (Σx)²) with x=ln P, y=ln Q — reported only with enough pairs and |β| ≤ 8; **R²** is the correlation² of the two logs.
+A per-ton "clean window" is enforced because early years mix kg and MT units; those rows are excluded from per-ton series (revenue values remain valid), and the running partial month is excluded from "current" statistics. The shipped copy has these aggregates **randomised into synthetic placeholders** preserving structure, record counts and order of magnitude.
 
-## Tech stack
-- Vanilla JavaScript (ES5-style), zero runtime dependencies.
-- Hand-authored SVG for all charts/axes; CSS grid + custom properties for layout and theming.
-- Data embedded as a single `var D = {...}` object literal; derived series computed at load.
+## 5. Analytical Framework
+The UI encodes a decision cascade rather than a flat chart gallery. **Direction** reads the revenue/price trajectory (where the business is heading); **Decision** ranks SKUs by revenue and colour-codes margin tier (where the money and margin are) and flags loss-making SKUs below an NP threshold; **Action** tracks share momentum against a target line and lays out a loss-recovery plan. **Where to Play · Whom to Play · How to Win** decomposes a share loss by division and competitor and turns it into a SMART playbook. Elasticity feeds the pricing judgement: β<−1 argues for holding price, an anomalous β>0 is treated as a scrap-cost pass-through signal to investigate, never as a causal demand curve. Every section carries a "what this answers / how to read it" guide so the reader is walked from summary to detail.
 
-## Demo data
-All figures are synthetic placeholders. Revenue, price, volume, competitor rates, market-share and elasticity values have been randomized from the original patterns while preserving structure, record counts and order of magnitude so every chart and KPI still renders. Company, competitor and ERP identifiers are fictional.
+## 6. System Design
+One HTML document, no framework, no build: (a) a `<style>` block implementing the shared portfolio design tokens (dark-navy, data-dense), (b) an embedded `var D = {...}` data object, (c) ~5k lines of vanilla ES5-style JavaScript that computes derived series at load and hand-rolls every chart as inline SVG (line, dual-axis, grouped-bar, bar-line overlay, diverging, breadth, waterfall) driven by shared colour-constant arrays, a single hover tooltip, and sortable/searchable tables. Tabs swap via display toggles and deep-link through the URL hash. Static single-file was chosen deliberately: it survives email/archive, renders identically offline (fonts degrade to system fallback), needs no hosting dependency, and keeps the analytical logic auditable in plain text.
 
-## How to run locally
-- Open `index.html` directly in a browser, **or**
-- Serve statically, e.g. `npx serve .` then visit the printed URL.
+## 7. Findings & Design Decisions
+The data story the cockpit surfaces: revenue compounds across the window but price direction is volatile; per-ton net and gross ride almost together because trade discount is ~0%, so MRP is the meaningful ceiling; margin concentrates in a handful of high-volume grades while low-margin SKUs sit at risk; the mill is a mid-tier share holder and the fastest-growing, with share loss concentrated in one division and traceable to a few competitors undercutting on trade schemes. Key design decisions: **blue + amber only** as accents (violet eliminated, including a former series colour mapped to a blue); charts recoloured to the fixed spec palette with tooltips and legends and never colour-alone; KPI values in a tabular monospace face, labels in the sans body face; a sticky top bar with an explicit **synthetic-data chip** and a footer carrying "Built by Abir"; a card hover-lift of 2 px and a single ≤450 ms load-in stagger, fully disabled under `prefers-reduced-motion`. Chart colours are driven by JS colour constants, so restyling them was a literal swap, not a logic change.
 
-## Deploying to Vercel
-1. Push this folder to a Git repo.
-2. In Vercel, **Import repo** → framework preset: **Other**.
-3. Build command: leave blank; Output directory: leave as root (or `public`).
-4. Deploy — the static `index.html` is served as-is.
+## 8. Limitations & Validity
+All figures are **synthetic**; no number, competitor name, or market-share value describes a real company. Volume and elasticity are *derived* (revenue ÷ price) and therefore directional, not a causal demand curve — project-driven demand, stock-outs, discounts and freight distort β. GP% rests on a point-in-time average-cost proxy; a true net margin needs the finance P&L. The competitor mill-rate survey is a partial multi-month window, not a three-year series, and market share comes from an external sheet with its own limited monthly coverage. Mixed-unit early-year quantities are excluded from per-ton analysis. The cockpit is a decision-support and design artifact, not an audited report.
+
+## 9. Reproducibility & Deployment
+No dependencies to install: open `index.html` (or the identical `Nexa Steel Product Intelligence Cockpit.html`) in any modern browser over `file://`, or serve statically with `npx serve .`. To deploy, import the folder into Vercel with the **Other** preset, leave the build command blank, and let the static root serve `index.html`; there are no environment variables and no backend. The `Nexa Steel Price Intelligence Cockpit - Build Guide.md` documents the conceptual ERP pulls, computation rules and gotchas for adapting the pattern. Editing the charts' palette is safe via the JS colour-constant arrays; the data object and rendering logic should be treated as read-only to preserve functionality.
