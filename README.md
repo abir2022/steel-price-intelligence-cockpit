@@ -1,3 +1,5 @@
+![Steel Price Intelligence](assets/banner.svg)
+
 # Nexa Steel — Product Intelligence Cockpit
 
 A self-contained, single-file analytics cockpit that turns three years of steel mill (rebar / MS rod) order-line data into an executive-ready read: realised **net / gross / MRP** price per tonne, SKU momentum, margin structure, competitor mill rates, market share, dealer commissions, regional growth, price elasticity, and a Direction·Decision·Action strategy layer. Every chart is hand-rolled SVG, the data is embedded as a JS object, and the whole thing opens from `file://` with no build step or server.
